@@ -4,119 +4,130 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Namaste India</title>
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
-      font-family: 'Poppins', sans-serif;
-      background-color: #0d0d0d;
-      color: #fff;
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      color: #333;
     }
+
     header {
-      background: #1a1a1a;
-      padding: 20px;
-      text-align: center;
-      border-bottom: 2px solid #e53935;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 2rem;
-      color: #e53935;
-    }
-    header p {
-      font-size: 1rem;
-      color: #ccc;
-      margin-top: 5px;
-    }
-    .content {
-      padding: 30px;
-    }
-    h2 {
-      color: #ff5252;
-      margin-bottom: 20px;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-    }
-    .card {
-      background: #1c1c1c;
-      border-radius: 12px;
-      overflow: hidden;
-      transition: transform 0.3s;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.6);
-      text-align: center;
-      padding-bottom: 15px;
-    }
-    .card:hover {
-      transform: translateY(-5px);
-    }
-    iframe {
-      width: 100%;
-      height: 180px;
-      border: none;
-    }
-    .card h3 {
-      margin: 10px;
-      font-size: 1.1rem;
-      color: #fff;
-    }
-    .btn {
-      display: inline-block;
-      margin-top: 10px;
-      padding: 10px 20px;
       background: #e53935;
       color: white;
-      border-radius: 25px;
+      padding: 15px;
+      text-align: center;
+    }
+
+    /* Navigation */
+    nav {
+      background: #111;
+      padding: 10px;
+      position: relative;
+    }
+    nav .menu {
+      display: none;
+      flex-direction: column;
+      background: #111;
+      position: absolute;
+      top: 40px;
+      left: 0;
+      width: 200px;
+      z-index: 1000;
+    }
+    nav .menu a {
+      padding: 12px;
+      color: white;
       text-decoration: none;
-      font-weight: bold;
-      transition: background 0.3s;
+      border-bottom: 1px solid #333;
     }
-    .btn:hover {
-      background: #b71c1c;
+    nav .menu a:hover {
+      background: #333;
     }
+    nav .hamburger {
+      font-size: 24px;
+      color: white;
+      cursor: pointer;
+    }
+
+    /* Sections */
+    section {
+      padding: 40px 20px;
+      text-align: center;
+    }
+    section h2 {
+      margin-bottom: 15px;
+    }
+    section:nth-child(even) {
+      background: #f1f1f1;
+    }
+
+    /* Footer */
     footer {
-      background: #000;
+      background: #111;
+      color: #888;
       text-align: center;
       padding: 15px;
-      color: #888;
-      margin-top: 40px;
       font-size: 0.9rem;
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 600px) {
+      section {
+        padding: 25px 10px;
+      }
     }
   </style>
 </head>
 <body>
+
+  <nav>
+    <span class="hamburger" onclick="toggleMenu()">☰</span>
+    <div class="menu" id="menu">
+      <a href="#pdf">Latest PDF</a>
+      <a href="#videos">Latest Videos</a>
+      <a href="#qp">Latest QP</a>
+    </div>
+  </nav>
+
   <header>
     <h1>Namaste India</h1>
     <p>Your Hub for Study Material</p>
   </header>
-  <section id="pdf" style="padding:40px; text-align:center; background:#f5f5f5;">
-  <h2>📄 Latest PDF</h2>
-  <p>Add your PDF links here</p>
-  <a href="your-pdf-link.pdf" download style="padding:10px 20px; background:#e53935; color:#fff; text-decoration:none; border-radius:20px;">Download PDF</a>
-</section>
 
-<section id="videos" style="padding:40px; text-align:center; background:#fff;">
-  <h2>🎬 Latest Videos</h2>
-  <p>Add your video embeds here</p>
-  <video width="320" controls>
-    <source src="your-video-link.mp4" type="video/mp4">
-  </video>
-</section>
+  <section id="pdf">
+    <h2>📄 Latest PDF</h2>
+    <p>Add your PDF links here</p>
+    <a href="your-pdf-link.pdf" download>Download PDF</a>
+  </section>
 
-<section id="qp" style="padding:40px; text-align:center; background:#f5f5f5;">
-  <h2>📝 Latest Question Papers</h2>
-  <p>Add your QPs here</p>
-  <a href="your-question-paper.pdf" download style="padding:10px 20px; background:#1e88e5; color:#fff; text-decoration:none; border-radius:20px;">Download QP</a>
-</section>
-      
-    </div>
-  </div>
+  <section id="videos">
+    <h2>🎥 Latest Videos</h2>
+    <p>Add your video embeds here</p>
+    <video width="320" controls>
+      <source src="your-video-link.mp4" type="video/mp4">
+    </video>
+  </section>
+
+  <section id="qp">
+    <h2>📝 Latest Question Papers</h2>
+    <p>Add your question paper links here</p>
+    <a href="your-question-paper.pdf" download>Download QP</a>
+  </section>
 
   <footer>
     <p>© 2025 Namaste India. All Rights Reserved.</p>
   </footer>
+
+  <script>
+    function toggleMenu() {
+      var menu = document.getElementById('menu');
+      if (menu.style.display === 'flex') {
+        menu.style.display = 'none';
+      } else {
+        menu.style.display = 'flex';
+      }
+    }
+  </script>
 </body>
 </html>
