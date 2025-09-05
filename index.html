@@ -1,1 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Namaste India</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+    }
 
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #e53935;
+      color: white;
+      padding: 15px 20px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+
+    #time {
+      font-size: 1rem;
+    }
+
+    .welcome {
+      text-align: center;
+      margin: 20px;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .search-bar {
+      text-align: center;
+      margin: 20px;
+    }
+
+    .search-bar input {
+      width: 80%;
+      max-width: 400px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 25px;
+      font-size: 1rem;
+    }
+
+    .pdf-list {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 20px;
+    }
+
+    .pdf-item {
+      background: white;
+      padding: 15px;
+      margin: 10px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      width: 250px;
+      text-align: center;
+    }
+
+    .pdf-item h3 {
+      font-size: 1.1rem;
+    }
+
+    .pdf-item a {
+      display: inline-block;
+      margin-top: 10px;
+      text-decoration: none;
+      background: #e53935;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 5px;
+    }
+
+    .pdf-item a:hover {
+      background: #b71c1c;
+    }
+
+    /* Popup */
+    .popup-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+
+    .popup {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      width: 300px;
+    }
+
+    .popup input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .popup button {
+      background: #e53935;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .popup button:hover {
+      background: #b71c1c;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Namaste India</h1>
+    <div id="time"></div>
+  </header>
+
+  <div class="welcome" id="welcome"></div>
+
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search PDFs by name..." onkeyup="searchPDFs()">
+  </div>
+
+  <div class="pdf-list" id="pdfList">
+    <div class="pdf-item">
+      <h3>Amu 2014-2024 pyq</h3>
+      <a href="https://acrobat.adobe.com/id/urn:aaid:sc:AP:a38ac1fc-1b1f-445a-b749-88598d6db014" target="_blank">View PDF</a>
+    </div>
+  </div>
+
+  <!-- Name Popup -->
+  <div class="popup-overlay" id="namePopup">
+    <div class="popup">
+      <h2>Enter Your Name</h2>
+      <input type="text" id="userName" placeholder="Your Name">
+      <button onclick="setName()">Submit</button>
+    </div>
+  </div>
+
+  <script>
+    // Show popup at start
+    window.onload = function() {
+      document.getElementById("namePopup").style.display = "flex";
+      updateTime();
+      setInterval(updateTime, 1000);
+    }
+
+    function setName() {
+      const name = document.getElementById("userName").value;
+      if (name.trim() === "") {
+        alert("Name is required!");
+        return;
+      }
+      document.getElementById("welcome").innerText = "Welcome, " + name + " 👋";
+      document.getElementById("namePopup").style.display = "none";
+    }
+
+    function updateTime() {
+      const now = new Date();
+      document.getElementById("time").innerText = now.toLocaleTimeString();
+    }
+
+    function searchPDFs() {
+      let input = document.getElementById("searchInput").value.toLowerCase();
+      let items = document.getElementsByClassName("pdf-item");
+
+      for (let i = 0; i < items.length; i++) {
+        let title = items[i].getElementsByTagName("h3")[0].innerText.toLowerCase();
+        items[i].style.display = title.includes(input) ? "block" : "none";
+      }
+    }
+  </script>
+
+</body>
+</html>
