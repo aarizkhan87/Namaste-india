@@ -1,6 +1,69 @@
+<!-- Notice Popup -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notice</title>
+<style>
+  /* Overlay background */
+  #noticeOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+
+  /* Popup box */
+  #noticePopup {
+    background-color: #fff;
+    padding: 25px 35px;
+    border-radius: 10px;
+    text-align: center;
+    max-width: 450px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    font-family: Arial, sans-serif;
+  }
+
+  #noticePopup h2 {
+    margin-bottom: 15px;
+    color: #333;
+  }
+
+  #noticePopup button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  #noticePopup button:hover {
+    background-color: #0056b3;
+  }
+</style>
+</head>
+<body>
+
+<!-- Notice Overlay -->
+<div id="noticeOverlay">
+  <div id="noticePopup">
+    <h2>Notice</h2>
+    <p>The AMU Class 9 PYQ Book and Education Adda Book PDF will be available after <strong>September 9, 2025</strong>.</p>
+    <button onclick="document.getElementById('noticeOverlay').style.display='none'">Close</button>
+  </div>
+</div>
+
+</body>
+</html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Namaste India</title>
