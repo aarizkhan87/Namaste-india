@@ -130,4 +130,61 @@
     }
   </script>
 </body>
+</html>      section {
+        padding: 25px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <span class="hamburger" onclick="toggleMenu()">☰</span>
+    <div class="menu" id="menu">
+      <a href="#pdf">Latest PDF</a>
+      <a href="#videos">Latest Videos</a>
+      <a href="#qp">Latest QP</a>
+    </div>
+  </nav>
+
+  <header>
+    <h1>Namaste India</h1>
+    <p>Your Hub for Study Material</p>
+  </header>
+
+  <section id="pdf">
+    <h2>📄 Latest PDF</h2>
+    <p>Add your PDF links here</p>
+    <a href="your-pdf-link.pdf" download>Download PDF</a>
+  </section>
+
+  <section id="videos">
+    <h2>🎥 Latest Videos</h2>
+    <p>Add your video embeds here</p>
+    <video width="320" controls>
+      <source src="your-video-link.mp4" type="video/mp4">
+    </video>
+  </section>
+
+  <section id="qp">
+    <h2>📝 Latest Question Papers</h2>
+    <p>Add your question paper links here</p>
+    <a href="your-question-paper.pdf" download>Download QP</a>
+  </section>
+
+  <footer>
+    <p>© 2025 Namaste India. All Rights Reserved.</p>
+  </footer>
+
+  <script>
+    function toggleMenu() {
+      var menu = document.getElementById('menu');
+      if (menu.style.display === 'flex') {
+        menu.style.display = 'none';
+      } else {
+        menu.style.display = 'flex';
+      }
+    }
+  </script>
+</body>
 </html>
