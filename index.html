@@ -65,38 +65,6 @@
 
 </body>
 </html>
-
-    
-
-    
-<body>
-
-  <div class="login-popup">
-    <h2>Login</h2>
-    <div class="error" id="errorMsg">Invalid username or password</div>
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="login()">Login</button>
-    <a class="get-password" href="https://t.me/namasteindia09" target="_blank">Get Password</a>
-  </div>
-
-  <script>
-    function login() {
-      const user = document.getElementById('username').value;
-      const pass = document.getElementById('password').value;
-      const errorMsg = document.getElementById('errorMsg');
-
-      if(user === 'User' && pass === '1234') {
-        alert('Login Successful!');
-        errorMsg.style.display = 'none';
-      } else {
-        errorMsg.style.display = 'block';
-      }
-    }
-  </script>
-
-</body>
-</html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Namaste India</title>
