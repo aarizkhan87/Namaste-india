@@ -925,3 +925,81 @@ function stopWaterEject() {
   if (navigator.vibrate) navigator.vibrate(0);
 }
 </script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>High Beep Mood Toggle</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #111;
+    color: #fff;
+    flex-direction: column;
+  }
+  button {
+    padding: 15px 30px;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    margin: 10px;
+    color: #fff;
+  }
+  #toggleBtn {
+    background: linear-gradient(45deg, #ff0040, #ffb300);
+  }
+  #sosBtn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: red;
+    border-radius: 50%;
+    width: 70px;
+    height: 70px;
+    font-size: 18px;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+<button id="toggleBtn">Mood Toggle</button>
+<button id="sosBtn">SOS</button>
+
+<audio id="beepAudio" loop>
+  <source src="https://www.soundjay.com/button/beep-07.wav" type="audio/wav">
+</audio>
+
+<script>
+let beepAudio = document.getElementById('beepAudio');
+let toggleBtn = document.getElementById('toggleBtn');
+let sosBtn = document.getElementById('sosBtn');
+let isPlaying = false;
+
+toggleBtn.addEventListener('click', () => {
+  if (!isPlaying) {
+    beepAudio.play();
+    isPlaying = true;
+  } else {
+    beepAudio.pause();
+    beepAudio.currentTime = 0;
+    isPlaying = false;
+  }
+});
+
+sosBtn.addEventListener('click', () => {
+  beepAudio.pause();
+  beepAudio.currentTime = 0;
+  isPlaying = false;
+  alert("Beep stopped by SOS!");
+});
+</script>
+
+</body>
+</html>
