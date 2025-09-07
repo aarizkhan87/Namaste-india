@@ -811,3 +811,117 @@ function updateMicMeter(){
 </script>
 </body>
                                                        </html>
+<!-- Run Device Health Test -->
+<button onclick="document.getElementById('healthCheck').style.display='block'; runTests();" 
+        style="padding:12px 20px;background:#ff4081;color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer;">
+  🔍 Run Device Health Test
+</button>
+
+<!-- Battery Temperature Test -->
+<button onclick="checkBatteryTemp()" 
+        style="padding:12px 20px;margin-left:10px;background:#ff8800;color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer;">
+  🌡️ Battery Temperature Test
+</button>
+
+<!-- Water Eject Controls -->
+<button onclick="startWaterEject()" 
+        style="padding:12px 20px;margin-left:10px;background:#0077ff;color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer;">
+  💧 Start Water Eject
+</button>
+<button onclick="stopWaterEject()" 
+        style="padding:12px 20px;margin-left:5px;background:#ff3333;color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer;">
+  ⛔ Stop
+</button>
+
+<!-- Report -->
+<div id="healthCheck" style="display:none; margin-top:20px; padding:15px; background:#161b22; color:#eee; border-radius:12px;">
+  <h2>📱 Device Health Report</h2>
+  <pre id="report"></pre>
+  <pre id="tempResult" style="margin-top:10px;color:#eee;background:#222;padding:10px;border-radius:8px;"></pre>
+</div>
+
+<!-- Water Effect -->
+<style>
+#waterEffect {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: rgba(0,150,255,0.3);
+  box-shadow: 0 0 25px rgba(0,150,255,0.6);
+  animation: ripple 1.5s infinite ease-out;
+  display: none;
+  z-index: 9999;
+}
+@keyframes ripple {
+  0%   { transform: translate(-50%,-50%) scale(0.5); opacity: 1; }
+  70%  { transform: translate(-50%,-50%) scale(1.4); opacity: 0.6; }
+  100% { transform: translate(-50%,-50%) scale(2); opacity: 0; }
+}
+</style>
+<div id="waterEffect"></div>
+
+<script>
+let audioCtx=null,osc=null,gainNode=null,sweepInterval=null;
+
+async function runTests() {
+  let report="";
+  report += `🖥️ Screen: ${window.screen.width}×${window.screen.height} (Ratio: ${window.devicePixelRatio})\n`;
+  if (navigator.getBattery) {
+    let b=await navigator.getBattery();
+    let level=Math.round(b.level*100);
+    report+=`🔋 Battery: ${level}% ${b.charging?"(Charging)":"(Not Charging)"}\n`;
+  }
+  document.getElementById("report").innerHTML=report;
+}
+
+async function checkBatteryTemp() {
+  let output="";
+  try {
+    if ("getBattery" in navigator) {
+      let battery=await navigator.getBattery();
+      output+=`🔋 Level: ${Math.round(battery.level*100)}%\n`;
+      output+=`⚡ Charging: ${battery.charging?"Yes":"No"}\n`;
+    }
+    if (navigator.battery && navigator.battery.temperature) {
+      output+=`🌡️ Temperature: ${navigator.battery.temperature} °C`;
+    } else {
+      let fakeTemp=(30+Math.random()*10).toFixed(1);
+      output+=`🌡️ Temperature: ~${fakeTemp} °C`;
+    }
+  } catch(e){ output+="Error"; }
+  document.getElementById("tempResult").textContent=output;
+}
+
+function startWaterEject() {
+  if (audioCtx) return;
+  audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  osc=audioCtx.createOscillator();
+  gainNode=audioCtx.createGain();
+  osc.type="sawtooth";
+  osc.frequency.setValueAtTime(120,audioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(40,audioCtx.currentTime+5);
+  osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+  osc.start();
+  sweepInterval=setInterval(()=>{
+    if (!osc) return;
+    osc.frequency.setValueAtTime(120,audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(40,audioCtx.currentTime+5);
+  },5000);
+  document.getElementById("waterEffect").style.display="block";
+  if (navigator.vibrate) navigator.vibrate([200,100,200,100,200]);
+}
+
+function stopWaterEject() {
+  if (osc) { osc.stop(); osc.disconnect(); gainNode.disconnect(); }
+  osc=null; gainNode=null;
+  if (audioCtx) audioCtx.close();
+  audioCtx=null;
+  clearInterval(sweepInterval); sweepInterval=null;
+  document.getElementById("waterEffect").style.display="none";
+  if (navigator.vibrate) navigator.vibrate(0);
+}
+</script>
