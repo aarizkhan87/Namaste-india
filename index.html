@@ -1,64 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Site Under Maintenance</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #ff512f, #dd2476);
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      text-align: center;
-    }
-
-    .container {
-      animation: fadeIn 2s ease-in-out;
-    }
-
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 15px;
-    }
-
-    p {
-      font-size: 1.2rem;
-      margin-bottom: 25px;
-    }
-
-    .loader {
-      border: 6px solid rgba(255, 255, 255, 0.3);
-      border-top: 6px solid white;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      margin: 0 auto;
-      animation: spin 1.5s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Internet Speed Test - Code Style</title>
+<style>
+  body {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    font-family: 'Courier New', monospace;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 50px;
+  }
+  .terminal {
+    background: #2d2d2d;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 0 20px #000;
+  }
+  .terminal h1 {
+    color: #569cd6;
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  .code-line {
+    margin: 5px 0;
+  }
+  button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background: #007acc;
+    color: white;
+  }
+  #console {
+    background: #1e1e1e;
+    color: #dcdcaa;
+    padding: 10px;
+    border-radius: 5px;
+    min-height: 60px;
+    margin-top: 15px;
+    font-family: 'Courier New', monospace;
+  }
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>⚙️ Site Under Maintenance</h1>
-    <p>We are currently working hard to improve our website.<br>
-       Please check back later. 🚀</p>
-    <div class="loader"></div>
-  </div>
+<div class="terminal">
+  <h1>Internet Speed Test</h1>
+  <div class="code-line">const testSpeed = () =&gt; {</div>
+  <div class="code-line">&nbsp;&nbsp;/* Download test file & measure time */</div>
+  <div class="code-line">}</div>
+  <button onclick="runTest()">Run Test</button>
+  <div id="console">Console output...</div>
+</div>
+
+<script>
+function runTest() {
+    const consoleEl = document.getElementById("console");
+    consoleEl.innerText = "Downloading test file...";
+
+    const imageAddr = "https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg";
+    const startTime = new Date().getTime();
+    const download = new Image();
+
+    download.onload = function () {
+        const endTime = new Date().getTime();
+        const duration = (endTime - startTime) / 1000;
+        const imageSizeBytes = 5500000; // approximate size in bytes
+        const bitsLoaded = imageSizeBytes * 8;
+        const speedBps = bitsLoaded / duration;
+        const speedMbps = speedBps / (1024 * 1024);
+        consoleEl.innerText = `Internet Speed: ${speedMbps.toFixed(2)} Mbps`;
+    };
+
+    download.onerror = function () {
+        consoleEl.innerText = "Error: Could not download test file!";
+    };
+
+    download.src = imageAddr + "?cacheBuster=" + new Date().getTime();
+}
+</script>
 </body>
 </html>
