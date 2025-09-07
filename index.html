@@ -1,3 +1,45 @@
+<div id="ffPing" style="position:fixed;top:10px;right:10px;background:rgba(0,0,0,0.6);color:white;padding:6px 12px;border-radius:8px;font-family:sans-serif;font-weight:700;">
+  Ping: <span id="pingValue">--</span> ms
+  <span id="pingBars" style="margin-left:6px;"></span>
+</div>
+
+<script>
+function updateFFPing() {
+  // Simulate a ping value (or replace with real measurement)
+  const ping = Math.floor(Math.random() * 200) + 20; // 20ms to 220ms
+  document.getElementById('pingValue').textContent = ping;
+
+  const bars = document.getElementById('pingBars');
+  bars.innerHTML = '';
+  let color = 'green';
+  if (ping > 100 && ping <= 150) color = 'yellow';
+  else if (ping > 150) color = 'red';
+
+  const barCount = 4; // max bars
+  let filled = 1;
+  if (ping <= 50) filled = 4;
+  else if (ping <= 100) filled = 3;
+  else if (ping <= 150) filled = 2;
+  else filled = 1;
+
+  for (let i = 0; i < barCount; i++) {
+    const span = document.createElement('span');
+    span.style.display = 'inline-block';
+    span.style.width = '4px';
+    span.style.height = `${6 + i*4}px`;
+    span.style.marginRight = '2px';
+    span.style.background = i < filled ? color : 'rgba(255,255,255,0.3)';
+    span.style.borderRadius = '2px';
+    bars.appendChild(span);
+  }
+}
+
+// Update every 1 second
+setInterval(updateFFPing, 1000);
+updateFFPing();
+</script>
+
+
 <!doctype html>
 <html lang="en">
 <head>
