@@ -1088,36 +1088,3 @@ function stopWaterEject() {
   }
 </style>
 </head>
-<body>
-
-<button id="toggleBtn">Mood Toggle</button>
-
-<script>
-let isBeeping = false;
-let audioCtx, oscillator;
-
-const btn = document.getElementById('toggleBtn');
-
-btn.addEventListener('click', () => {
-    if (!isBeeping) {
-        // Start beep
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        oscillator = audioCtx.createOscillator();
-        oscillator.type = 'square'; // sharp beep
-        oscillator.frequency.setValueAtTime(1000, audioCtx.currentTime); // 1000 Hz
-        oscillator.connect(audioCtx.destination);
-        oscillator.start();
-        isBeeping = true;
-        btn.textContent = "Mood On";
-    } else {
-        // Stop beep
-        oscillator.stop();
-        audioCtx.close();
-        isBeeping = false;
-        btn.textContent = "Mood Toggle";
-    }
-});
-</script>
-
-</body>
-</html>
