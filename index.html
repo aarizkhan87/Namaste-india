@@ -11,7 +11,6 @@
     --card-radius:16px;
     --glass: rgba(255,255,255,0.6);
   }
-  /* Light / Dark handled with .dark on body */
   body{
     margin:0;
     font-family: "Segoe UI", Roboto, Arial, sans-serif;
@@ -27,7 +26,6 @@
     background: linear-gradient(135deg,#0f1724,#122233);
     color:#e6eef8;
   }
-
   header{
     width:100%;
     padding:14px 18px;
@@ -57,7 +55,6 @@
   }
   body.dark .mode-switch{ border-color: rgba(255,255,255,0.15); }
 
-  /* layout */
   .wrap{
     width:100%;
     max-width:1100px;
@@ -99,28 +96,22 @@
   button.primary{ background: linear-gradient(135deg,#ff8a65,#ff4081); color:white; border:none; cursor:pointer; font-weight:700; }
   button.ghost{ background:transparent; border:1px solid rgba(0,0,0,0.08); }
 
-  /* logos */
   .logos{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:8px; }
   .logos img{ width:46px; height:46px; object-fit:cover; border-radius:10px; cursor:pointer; border:2px solid transparent; transition:transform .15s, border-color .15s; }
   .logos img:hover{ transform:scale(1.06); }
   .logos img.selected{ border-color:var(--accent); transform:scale(1.03); }
 
-  /* QR canvas area */
   .qrcanvas-wrap{ text-align:center; margin-top:10px; }
   #qrcodeCanvas{ width:300px; height:300px; border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,0.08); background:white; }
 
-  /* scanner side */
   #scannerCard .muted{ color: #6b7280; font-size:14px; }
   body.dark #scannerCard .muted{ color:#9fb0c8; }
 
-  /* file picker UI */
   .file-row{ display:flex; gap:8px; align-items:center; justify-content:center; margin-top:8px; flex-wrap:wrap; }
   .file-row label{ cursor:pointer; border-radius:10px; padding:10px 14px; background: linear-gradient(135deg,#00c6ff,#0072ff); color:white; font-weight:700; }
 
-  /* result */
   #scan-result{ font-weight:700; color:var(--accent); margin-top:12px; word-break:break-word; }
 
-  /* footer */
   footer{
     width:100%;
     margin-top:24px;
@@ -144,7 +135,6 @@
     text-shadow: 0 2px 8px rgba(0,0,0,0.15);
   }
 
-  /* small */
   .small{ font-size:13px; color:#6b7280; }
   body.dark .small{ color:#9fb0c8; }
 </style>
@@ -166,9 +156,7 @@
   </button>
 </header>
 
-<!-- main layout -->
 <div class="wrap">
-  <!-- LEFT: generator -->
   <div class="card">
     <h1>🌺 Namaste India</h1>
     <div class="controls">
@@ -222,7 +210,6 @@
     </div>
   </div>
 
-  <!-- RIGHT: scanner (file only) -->
   <div id="scannerCard" class="card">
     <h2>📂 QR Scanner (Upload file)</h2>
     <div class="small">Choose a QR image (PNG/JPG). The decoded result will appear in bold below.</div>
@@ -242,12 +229,9 @@
   <div>Contact Developer — <span class="fancy-name">_a.a.r.i.z07_</span></div>
 </footer>
 
-<!-- libs -->
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
-
 <script>
-/* --------- theme toggle --------- */
 const body = document.body;
 const modeBtn = document.getElementById('modeBtn');
 const modeIcon = document.getElementById('modeIcon');
@@ -263,7 +247,6 @@ modeBtn.addEventListener('click', ()=>{
   modeIcon.textContent = dark ? '🌙' : '🌗';
 });
 
-/* --------- gradient QR generation (mask method) --------- */
 const visibleCanvas = document.getElementById('qrcodeCanvas');
 const vctx = visibleCanvas.getContext('2d');
 
@@ -286,95 +269,55 @@ function generateGradientQR(){
   const gcolors = gradientPreset.split(',').map(s=>s.trim());
   const logoURL = (document.getElementById('customLogo').value || document.querySelector('[data-logo].selected')?.src) || null;
 
-  // Generate QR as dataURL (high resolution for sharpness)
   QRCode.toDataURL(data, { errorCorrectionLevel:'H', margin:1, width:600, color: { dark:'#000000', light:'#ffffff' } }, function(err, url){
     if(err){ console.error(err); alert('QR generation failed'); return; }
 
     const maskImg = new Image();
     maskImg.crossOrigin = 'anonymous';
     maskImg.onload = function(){
-      // create mask canvas
       const mask = document.createElement('canvas');
-      const mw = mask.width = maskImg.width;
-      const mh = mask.height = maskImg.height;
+      mask.width = maskImg.width;
+      mask.height = maskImg.height;
       const mctx = mask.getContext('2d');
       mctx.drawImage(maskImg,0,0);
-
-      // convert white -> transparent, black -> opaque (create alpha mask)
-      const id = mctx.getImageData(0,0,mw,mh);
+      const id = mctx.getImageData(0,0,mask.width,mask.height);
       for(let i=0;i<id.data.length;i+=4){
         const r=id.data[i], g=id.data[i+1], b=id.data[i+2];
-        // if pixel is near-white assume background: make transparent
-        if(r>220 && g>220 && b>220){
-          id.data[i+3]=0; // transparent
-        } else {
-          id.data[i+3]=255; // opaque
-          // make it white (not necessary) id.data[i]=255; id.data[i+1]=255; id.data[i+2]=255;
-        }
+        if(r>220 && g>220 && b>220) id.data[i+3]=0; else id.data[i+3]=255;
       }
       mctx.putImageData(id,0,0);
 
-      // draw gradient on visible canvas then mask it
-      const w = visibleCanvas.width = mw;
-      const h = visibleCanvas.height = mh;
-
-      // clear
+      visibleCanvas.width = mask.width;
+      visibleCanvas.height = mask.height;
+      const w = visibleCanvas.width;
+      const h = visibleCanvas.height;
       vctx.clearRect(0,0,w,h);
 
-      // create linear gradient (left->right diagonal)
       const grad = vctx.createLinearGradient(0,0,w,h);
-      // add stops
-      for(let i=0;i<gcolors.length;i++){
-        grad.addColorStop(i/(gcolors.length-1), gcolors[i]);
-      }
+      for(let i=0;i<gcolors.length;i++){ grad.addColorStop(i/(gcolors.length-1), gcolors[i]); }
       vctx.fillStyle = grad;
       vctx.fillRect(0,0,w,h);
 
-      // use destination-in to keep gradient where mask is opaque
       vctx.globalCompositeOperation = 'destination-in';
       vctx.drawImage(mask,0,0);
 
-      // put a background behind (white for light mode, dark for dark mode)
       vctx.globalCompositeOperation = 'destination-over';
       vctx.fillStyle = body.classList.contains('dark') ? '#071226' : '#ffffff';
       vctx.fillRect(0,0,w,h);
-
-      // reset composite
       vctx.globalCompositeOperation = 'source-over';
 
-      // draw center logo if provided (try-catch to avoid taint)
       if(logoURL){
         const logo = new Image();
         logo.crossOrigin = 'anonymous';
         logo.onload = function(){
-          // center logo, 20% size
           const size = Math.floor(w * 0.20);
           vctx.drawImage(logo, (w-size)/2, (h-size)/2, size, size);
         };
-        logo.onerror = function(){
-          // ignore logo errors (CORS)
-          console.warn('Logo load failed (CORS or invalid url)');
-        };
         logo.src = logoURL;
       }
-
-      // update download link
-      updateDownloadLink();
     };
-    maskImg.onerror = function(){ alert('Failed to create QR mask'); };
     maskImg.src = url;
   });
-}
-
-function updateDownloadLink(){
-  const link = document.getElementById('downloadLink');
-  try{
-    link.href = visibleCanvas.toDataURL('image/png');
-  }catch(e){
-    // if canvas is tainted (logo cross-origin), offer to open in new tab (still may be blocked)
-    link.href = '#';
-    console.warn('Canvas may be tainted; download disabled', e);
-  }
 }
 
 function downloadPNG(){
@@ -386,12 +329,9 @@ function downloadPNG(){
     document.body.appendChild(a);
     a.click();
     a.remove();
-  }catch(e){
-    alert('Download blocked (logo may be from another domain without CORS). Use "Open" link and save manually.');
-  }
+  }catch(e){ alert('Download blocked (logo may be cross-origin).'); }
 }
 
-/* ---------- file-scan (jsQR) ---------- */
 const fileInput = document.getElementById('fileInput');
 const scanResult = document.getElementById('scan-result');
 
@@ -406,50 +346,29 @@ fileInput.addEventListener('change', (ev)=>{
     c.height = img.naturalHeight;
     const cx = c.getContext('2d');
     cx.drawImage(img,0,0);
-    try{
-      const id = cx.getImageData(0,0,c.width,c.height);
-      const code = jsQR(id.data, id.width, id.height, { inversionAttempts: 'attemptBoth' });
-      if(code){
-        scanResult.textContent = code.data;
-        scanResult.style.fontWeight = '900';
-        // auto-fill generator input and create QR
-        document.getElementById('data').value = code.data;
-        generateGradientQR();
-      } else {
-        scanResult.textContent = '❌ No QR found in image';
-        scanResult.style.fontWeight = '700';
-      }
-    }catch(err){
-      scanResult.textContent = 'Error reading image';
-      console.error(err);
-    } finally {
-      URL.revokeObjectURL(url);
-    }
+    const id = cx.getImageData(0,0,c.width,c.height);
+    const code = jsQR(id.data, id.width, id.height, { inversionAttempts: 'attemptBoth' });
+    if(code){
+      scanResult.textContent = code.data;
+      document.getElementById('data').value = code.data;
+      generateGradientQR();
+    } else { scanResult.textContent = '❌ No QR found in image'; }
+    URL.revokeObjectURL(url);
   };
-  img.onerror = function(){ scanResult.textContent = 'Invalid image file'; URL.revokeObjectURL(url); };
   img.src = url;
 });
 
-/* quick logo selector wiring */
 document.querySelectorAll('[data-logo]').forEach(img=>{
   img.addEventListener('click', ()=>{
     document.querySelectorAll('[data-logo]').forEach(i=>i.classList.remove('selected'));
     img.classList.add('selected');
-    // auto set customLogo to selected src (optional)
     document.getElementById('customLogo').value = img.src;
   });
 });
 
-/* helpful: press Enter in data input to generate */
 document.getElementById('data').addEventListener('keydown', (e)=>{
   if(e.key === 'Enter') generateGradientQR();
 });
-
-/* initial sample QR */
-document.addEventListener('DOMContentLoaded', ()=> {
-  document.getElementById('data').value = 'https://instagram.com/_a.a.r.i.z07_';
-  generateGradientQR();
-});
 </script>
 </body>
-  </html>
+</html
