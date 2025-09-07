@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mobile QR Generator</title>
+<title>Social Media QR Generator</title>
 <style>
 body {
   font-family: Arial, sans-serif;
@@ -40,7 +40,7 @@ a { display: block; margin-top: 10px; font-weight: bold; color: #ff5722; word-br
 </style>
 </head>
 <body>
-<h2>Mobile QR Generator</h2>
+<h2>Social Media QR Generator</h2>
 
 <select id="type">
   <option value="text">Text</option>
@@ -57,11 +57,15 @@ a { display: block; margin-top: 10px; font-weight: bold; color: #ff5722; word-br
   <option value="#ff5722,#4caf50">Orange → Green</option>
   <option value="#2196f3,#9c27b0">Blue → Purple</option>
   <option value="#f44336,#ffeb3b">Red → Yellow</option>
+  <option value="#ff0080,#ff8c00">Pink → Orange</option>
 </select><br>
 
 <label>Logo:</label>
 <div class="logo-buttons">
   <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" data-logo>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" data-logo>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/4/42/YouTube_icon_%282013-2017%29.png" data-logo>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" data-logo>
   <img src="https://upload.wikimedia.org/wikipedia/commons/a/ab/Android_O_Preview_Logo.png" data-logo>
   <img src="https://upload.wikimedia.org/wikipedia/commons/1/12/Generic_QR_code_icon.png" data-logo>
 </div>
@@ -70,7 +74,7 @@ a { display: block; margin-top: 10px; font-weight: bold; color: #ff5722; word-br
 <button onclick="generateQR()">Generate QR</button>
 
 <canvas id="qrCanvas" width="280" height="280"></canvas>
-<a id="downloadLink" href="#" target="_blank">Open QR to Save</a>
+<a id="downloadLink" href="#" target="_blank">Open QR to Save (long-press on mobile)</a>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script>
@@ -135,9 +139,8 @@ function generateQR() {
 
 function updateDownloadLink(){
   const link = document.getElementById('downloadLink');
-  // Open QR in new tab
   link.href = canvas.toDataURL("image/png");
-  link.textContent = "Open QR to Save (long-press to save on mobile)";
+  link.textContent = "Open QR to Save (long-press on mobile)";
 }
 </script>
 </body>
