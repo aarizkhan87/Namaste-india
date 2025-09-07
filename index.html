@@ -1,39 +1,37 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Namaste India — QR Generator & File Scanner</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Namaste India — QR Tools & 18+</title>
 <link rel="icon" href="data:,">
 <style>
 :root{
   --accent:#ff4081;
   --card-radius:16px;
-  --glass: rgba(255,255,255,0.6);
 }
 body{
   margin:0;
-  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  font-family:"Segoe UI", Roboto, Arial, sans-serif;
   min-height:100vh;
+  background:linear-gradient(135deg,#fdfbfb,#ebedee);
+  color:#222;
   display:flex;
   flex-direction:column;
   align-items:center;
-  background: linear-gradient(135deg,#fdfbfb,#ebedee);
-  color:#222;
   transition:background .35s, color .35s;
 }
 body.dark{
-  background: linear-gradient(135deg,#0f1724,#122233);
+  background:linear-gradient(135deg,#0f1724,#122233);
   color:#e6eef8;
 }
 header{
   width:100%;
+  max-width:1100px;
   padding:14px 18px;
   display:flex;
-  align-items:center;
   justify-content:space-between;
-  max-width:1100px;
-  box-sizing:border-box;
+  align-items:center;
 }
 .brand{
   display:flex;
@@ -42,211 +40,177 @@ header{
   font-weight:700;
   font-size:20px;
 }
-.brand .emoji{ font-size:22px; transform: translateY(1px); }
 .mode-switch{
-  background:transparent;
-  border:1px solid rgba(0,0,0,0.08);
+  cursor:pointer;
   padding:8px 12px;
   border-radius:999px;
-  cursor:pointer;
-  display:inline-flex;
-  gap:8px;
-  align-items:center;
+  border:1px solid rgba(0,0,0,0.08);
+  background:transparent;
 }
 body.dark .mode-switch{ border-color: rgba(255,255,255,0.15); }
 .wrap{
   width:100%;
   max-width:1100px;
   display:grid;
-  grid-template-columns: 1fr 420px;
+  grid-template-columns:1fr 420px;
   gap:18px;
   padding:18px;
-  box-sizing:border-box;
 }
-@media (max-width:920px){ .wrap{ grid-template-columns: 1fr; } }
+@media(max-width:920px){ .wrap{ grid-template-columns:1fr; } }
 .card{
-  background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.72));
+  background:linear-gradient(180deg,rgba(255,255,255,0.85),rgba(255,255,255,0.72));
   border-radius:var(--card-radius);
   padding:18px;
-  box-shadow: 0 8px 30px rgba(14,30,37,0.07);
-  transition: background .3s, box-shadow .3s;
+  box-shadow:0 8px 30px rgba(14,30,37,0.07);
+  transition:background .3s, box-shadow .3s;
 }
 body.dark .card{
-  background: linear-gradient(180deg, rgba(8,12,20,0.65), rgba(12,18,28,0.5));
-  box-shadow: 0 8px 30px rgba(2,6,12,0.6);
+  background:linear-gradient(180deg,rgba(8,12,20,0.65),rgba(12,18,28,0.5));
+  box-shadow:0 8px 30px rgba(2,6,12,0.6);
 }
 h1,h2{ margin:8px 0; }
-h1{ font-family: "Cursive", Georgia; color:var(--accent); text-shadow: 1px 1px 6px rgba(0,0,0,0.12); }
-body.dark h1{ color:#ffd6e6; text-shadow: 1px 1px 6px rgba(0,0,0,0.35); }
-.controls { display:flex; flex-direction:column; align-items:center; gap:8px; }
-select,input[type=text], button, input[type=password]{
-  width:92%;
-  max-width:360px;
+h1{ font-family:"Cursive",Georgia; color:var(--accent); text-shadow:1px 1px 6px rgba(0,0,0,0.12);}
+body.dark h1{ color:#ffd6e6; text-shadow:1px 1px 6px rgba(0,0,0,0.35);}
+.controls{ display:flex; flex-direction:column; align-items:center; gap:8px; }
+select,input[type=text], input[type=password], button{
+  width:92%; max-width:360px;
   padding:10px 12px;
   border-radius:10px;
   border:1px solid #d6d6d6;
   font-size:15px;
   outline:none;
 }
-body.dark select,input[type=text], input[type=password]{ border-color:#394a5a; background:#0f2130; color:#e6eef8; }
-button.primary{ background: linear-gradient(135deg,#ff8a65,#ff4081); color:white; border:none; cursor:pointer; font-weight:700; }
+body.dark select,input[type=text],input[type=password]{border-color:#394a5a;background:#0f2130;color:#e6eef8;}
+button.primary{ background:linear-gradient(135deg,#ff8a65,#ff4081); color:white; border:none; cursor:pointer; font-weight:700;}
 button.ghost{ background:transparent; border:1px solid rgba(0,0,0,0.08); }
-.logos{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:8px; }
-.logos img{ width:46px; height:46px; object-fit:cover; border-radius:10px; cursor:pointer; border:2px solid transparent; transition:transform .15s, border-color .15s; }
-.logos img:hover{ transform:scale(1.06); }
-.logos img.selected{ border-color:var(--accent); transform:scale(1.03); }
-.qrcanvas-wrap{ text-align:center; margin-top:10px; }
-#qrcodeCanvas{ width:300px; height:300px; border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,0.08); background:white; }
-#scannerCard .muted{ color: #6b7280; font-size:14px; }
-body.dark #scannerCard .muted{ color:#9fb0c8; }
-.file-row{ display:flex; gap:8px; align-items:center; justify-content:center; margin-top:8px; flex-wrap:wrap; }
-.file-row label{ cursor:pointer; border-radius:10px; padding:10px 14px; background: linear-gradient(135deg,#00c6ff,#0072ff); color:white; font-weight:700; }
-#scan-result{ font-weight:700; color:var(--accent); margin-top:12px; word-break:break-word; }
-footer{
-  width:100%;
-  margin-top:24px;
-  padding:18px;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  gap:12px;
-  background: linear-gradient(90deg,#ff6ec4,#7873f5);
-  color:white;
-  border-top-left-radius:18px;
-  border-top-right-radius:18px;
-  box-shadow: 0 -6px 30px rgba(120,115,245,0.12);
-}
-.fancy-name{
-  background: linear-gradient(90deg,#fff,#ffd6e6,#fff);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  font-family:'Cursive';
-  font-size:20px;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.15);
-}
-.small{ font-size:13px; color:#6b7280; }
-body.dark .small{ color:#9fb0c8; }
-
-/* Privacy overlay */
-#privacyOverlay{
-  position:fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  background:black;
-  opacity:0;
-  pointer-events:none;
-  z-index:9999;
-  transition:opacity 0.3s;
-}
-
-/* Privacy button */
-#privacyBtn{
-  position:fixed;
-  bottom:20px;
-  right:20px;
-  z-index:10000;
-  padding:10px 16px;
-  border-radius:8px;
-  font-weight:700;
-}
+.qrcanvas-wrap{text-align:center;margin-top:10px;}
+#qrcodeCanvas{ width:300px; height:300px; border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,0.08); background:white;}
+footer{width:100%; margin-top:24px; padding:18px; display:flex; justify-content:center; background:linear-gradient(90deg,#ff6ec4,#7873f5); color:white; border-top-left-radius:18px; border-top-right-radius:18px; box-shadow:0 -6px 30px rgba(120,115,245,0.12);}
+.fancy-name{ background:linear-gradient(90deg,#fff,#ffd6e6,#fff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-family:'Cursive'; font-size:20px; text-shadow:0 2px 8px rgba(0,0,0,0.15);}
+#ffPing{position:fixed;top:10px;right:10px;background:rgba(0,0,0,0.6);color:white;padding:6px 12px;border-radius:8px;font-family:sans-serif;font-weight:700;z-index:999;}
+#pingBars span{display:inline-block;width:4px;margin-right:2px;border-radius:2px;}
 </style>
 </head>
 <body>
 
-<!-- Free Fire-style Ping -->
-<div id="ffPing" style="position:fixed;top:10px;right:10px;background:rgba(0,0,0,0.6);color:white;padding:6px 12px;border-radius:8px;font-family:sans-serif;font-weight:700;z-index:10001;">
-  Ping: <span id="pingValue">--</span> ms
-  <span id="pingBars" style="margin-left:6px;"></span>
-</div>
-
-<!-- Privacy overlay -->
-<div id="privacyOverlay"></div>
-<button id="privacyBtn">Privacy Mode</button>
-
 <header>
-  <div class="brand">
-    <span class="emoji">🌸</span>
-    <div>
-      <div style="font-size:14px;opacity:.9">Namaste India</div>
-      <div style="font-size:12px;opacity:.7">QR Tools — Generator & File Scanner</div>
-    </div>
-  </div>
-  <button class="mode-switch" id="modeBtn" title="Toggle light / dark">
-    <span id="modeIcon">🌗</span>
-    <span style="font-weight:700">Mode</span>
-  </button>
+  <div class="brand"><span class="emoji">🌸</span> Namaste India</div>
+  <button class="mode-switch" id="modeBtn">🌗 Mode</button>
 </header>
 
-<div class="wrap">
-  <!-- QR Generator and Scanner cards go here (same as your previous HTML) -->
-  <!-- Adult section card also goes here -->
+<!-- Ping Display -->
+<div id="ffPing">
+  Ping: <span id="pingValue">--</span> ms 
+  <span id="pingBars"></span> — <span id="pingMsg">Checking...</span>
 </div>
 
-<footer>
-  <div>Contact Developer — <span class="fancy-name">_a.a.r.i.z07_</span></div>
-</footer>
+<div class="wrap">
+
+  <!-- QR Generator -->
+  <div class="card">
+    <h1>🌺 QR Generator</h1>
+    <div class="controls">
+      <select id="type">
+        <option value="text">Text</option>
+        <option value="url">URL</option>
+        <option value="wifi">WiFi</option>
+        <option value="phone">Phone</option>
+        <option value="whatsapp">WhatsApp</option>
+      </select>
+      <input id="data" type="text" placeholder="Enter data">
+      <div style="display:flex;gap:10px;margin-top:10px;">
+        <button class="primary" onclick="generateQR()">Generate</button>
+        <button class="ghost" onclick="downloadQR()">Download</button>
+      </div>
+      <div class="qrcanvas-wrap">
+        <canvas id="qrcodeCanvas" width="300" height="300"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- QR Scanner -->
+  <div class="card">
+    <h2>📂 QR Scanner</h2>
+    <input type="file" id="fileInput" accept="image/*">
+    <div id="scan-result">No QR scanned yet</div>
+  </div>
+
+  <!-- 18+ Section -->
+  <div class="card">
+    <h2>🔞 18+ Section</h2>
+    <div id="loginSectionAdult">
+      <input type="text" id="adultUsername" placeholder="Username">
+      <input type="password" id="adultPassword" placeholder="Password">
+      <button class="primary" id="adultLoginBtn">Enter</button>
+      <p id="adultLoginMsg" style="color:red;"></p>
+      <p>Forgot credentials? <a href="https://wa.me/447877486623?text=Hi,%20I%20need%20the%2018%2B%20username%20and%20password" target="_blank">Get on WhatsApp</a></p>
+    </div>
+    <div id="protectedAdultContent" style="display:none;">
+      <h3>Welcome to 18+ Section</h3>
+      <p>📄 Study Material: <a href="https://drive.google.com/file/d/16guYnuJDX2ZpdE-La50Ej_5vYZHFEcTy/view?usp=drivesdk" target="_blank">Open Study Material</a></p>
+    </div>
+  </div>
+
+</div>
+
+<footer>Contact Developer — <span class="fancy-name">_a.a.r.i.z07_</span></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
 
 <script>
-// ---------- Free Fire-style Ping ----------
-function updateFFPing() {
-  const ping = Math.floor(Math.random() * 200) + 20;
-  document.getElementById('pingValue').textContent = ping;
-  const bars = document.getElementById('pingBars');
-  bars.innerHTML = '';
-  let color = 'green';
-  if(ping > 100 && ping <= 150) color='yellow';
-  else if(ping>150) color='red';
-  const barCount=4;
-  let filled=1;
-  if(ping<=50) filled=4;
-  else if(ping<=100) filled=3;
-  else if(ping<=150) filled=2;
-  else filled=1;
-  for(let i=0;i<barCount;i++){
-    const span=document.createElement('span');
-    span.style.display='inline-block';
-    span.style.width='4px';
-    span.style.height=`${6+i*4}px`;
-    span.style.marginRight='2px';
-    span.style.background=i<filled?color:'rgba(255,255,255,0.3)';
-    span.style.borderRadius='2px';
-    bars.appendChild(span);
-  }
-}
-setInterval(updateFFPing,1000);
-updateFFPing();
+// Theme toggle
+const body = document.body;
+const modeBtn = document.getElementById('modeBtn');
+modeBtn.addEventListener('click',()=>{
+  body.classList.toggle('dark');
+  modeBtn.textContent = body.classList.contains('dark')?'🌙 Mode':'🌗 Mode';
+});
 
-// ---------- Privacy Mode ----------
-const overlay = document.getElementById('privacyOverlay');
-const privacyBtn = document.getElementById('privacyBtn');
-const siteHeader = document.querySelector('header');
-let privacyActive = false;
-privacyBtn.addEventListener('click', ()=>{
-  privacyActive = !privacyActive;
-  if(privacyActive){
-    overlay.style.opacity='0.95';
-    overlay.style.pointerEvents='auto';
-    if(siteHeader) siteHeader.style.display='none';
-    privacyBtn.textContent='Privacy Mode ON';
-  } else {
-    overlay.style.opacity='0';
-    overlay.style.pointerEvents='none';
-    if(siteHeader) siteHeader.style.display='flex';
-    privacyBtn.textContent='Privacy Mode';
+// QR Generator
+function generateQR(){
+  let type=document.getElementById('type').value;
+  let data=document.getElementById('data').value.trim();
+  if(!data){ alert('Enter data'); return; }
+  if(type==='wifi'){ const parts=data.split(','); if(parts.length!==3){ alert('WiFi: SSID,WPA,password'); return; } data=`WIFI:S:${parts[0]};T:${parts[1]};P:${parts[2]};;`; }
+  else if(type==='phone'){ data=`tel:${data}`; }
+  else if(type==='whatsapp'){ data=`https://wa.me/${data.replace(/\D/g,'')}`; }
+  QRCode.toCanvas(document.getElementById('qrcodeCanvas'),data,{width:300,margin:1},err=>{if(err) alert(err);});
+}
+function downloadQR(){
+  const canvas=document.getElementById('qrcodeCanvas');
+  const a=document.createElement('a'); a.href=canvas.toDataURL(); a.download="qr.png"; a.click();
+}
+
+// QR Scanner
+const fileInput=document.getElementById('fileInput');
+fileInput.addEventListener('change',e=>{
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(){
+    const img=new Image(); img.onload=function(){
+      const canvas=document.createElement('canvas'); canvas.width=img.width; canvas.height=img.height;
+      const ctx=canvas.getContext('2d'); ctx.drawImage(img,0,0);
+      const code=jsQR(ctx.getImageData(0,0,canvas.width,canvas.height).data,canvas.width,canvas.height);
+      document.getElementById('scan-result').textContent=code?code.data:"No QR detected";
+      if(code) document.getElementById('data').value=code.data;
+    }; img.src=reader.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+// 18+ Login
+const adultBtn=document.getElementById('adultLoginBtn');
+adultBtn.addEventListener('click',()=>{
+  const user=document.getElementById('adultUsername').value;
+  const pass=document.getElementById('adultPassword').value;
+  if(user==='user18' && pass==='pass18'){
+    document.getElementById('loginSectionAdult').style.display='none';
+    document.getElementById('protectedAdultContent').style.display='block';
+    document.getElementById('adultLoginMsg').textContent='';
+  }else{
+    document.getElementById('adultLoginMsg').textContent='Incorrect username or password!';
   }
 });
 
-// ---------- Theme toggle ----------
-const body = document.body;
-const modeBtn = document.getElementById('modeBtn');
-const modeIcon = document.getElementById('modeIcon');
-(function(){
-  if(localStorage.getItem('ni_mode')==='dark'){ body.classList.add('dark'); modeIcon.textContent='🌙'; }
-})();
-modeBtn.addEventListener('click', ()=>{
-  body.classList.toggle('dark');
-  localStorage.setItem('ni_mode', body.classList.contains('dark')?'dark':'light');
-  modeIcon.textContent = body.classList.contains
+// Free Fire Ping
