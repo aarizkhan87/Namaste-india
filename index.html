@@ -3,13 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Social Media QR Generator</title>
+<title>Fancy QR Generator</title>
 <style>
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   text-align: center;
   padding: 20px;
-  background: linear-gradient(135deg,#e0f7fa,#f1f8e9);
+  background: linear-gradient(135deg,#fdfbfb,#ebedee);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 input, select, button {
   padding: 10px;
@@ -23,9 +26,10 @@ input, select, button {
 canvas {
   margin-top: 15px;
   border-radius: 12px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  background: #fff;
 }
-h2 { color: #00796b; font-size: 22px; }
+h2 { color: #00796b; font-size: 22px; margin-bottom: 10px; }
 .logo-buttons img {
   width: 40px;
   height: 40px;
@@ -36,11 +40,22 @@ h2 { color: #00796b; font-size: 22px; }
   transition: border 0.2s;
 }
 .logo-buttons img.selected { border: 2px solid #00796b; }
-a { display: block; margin-top: 10px; font-weight: bold; color: #ff5722; word-break: break-all; }
+a.download-link { display: block; margin-top: 10px; font-weight: bold; color: #ff5722; word-break: break-all; text-decoration: none; }
+footer {
+  margin-top: auto;
+  padding: 15px 0;
+  font-family: 'Cursive', sans-serif;
+  font-size: 18px;
+  color: #ff4081;
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 2px #00000050;
+}
+footer a { color: #ff4081; text-decoration: none; }
+footer a:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
-<h2>Social Media QR Generator</h2>
+<h2>Fancy QR Generator</h2>
 
 <select id="type">
   <option value="text">Text</option>
@@ -58,6 +73,12 @@ a { display: block; margin-top: 10px; font-weight: bold; color: #ff5722; word-br
   <option value="#2196f3,#9c27b0">Blue → Purple</option>
   <option value="#f44336,#ffeb3b">Red → Yellow</option>
   <option value="#ff0080,#ff8c00">Pink → Orange</option>
+  <option value="#00bcd4,#8e24aa">Cyan → Violet</option>
+  <option value="#4caf50,#ffeb3b">Green → Yellow</option>
+  <option value="#ff5722,#9c27b0">Orange → Purple</option>
+  <option value="#3f51b5,#2196f3">Indigo → Blue</option>
+  <option value="#e91e63,#ff9800">Pink → Orange</option>
+  <option value="#ff0000,#00ff00,#0000ff">Rainbow</option>
 </select><br>
 
 <label>Logo:</label>
@@ -71,10 +92,17 @@ a { display: block; margin-top: 10px; font-weight: bold; color: #ff5722; word-br
 </div>
 <input type="text" id="customLogo" placeholder="Or custom logo URL"><br>
 
-<button onclick="generateQR()">Generate QR</button>
+<button onclick="generateQR()">Generate Fancy QR</button>
 
-<canvas id="qrCanvas" width="280" height="280"></canvas>
-<a id="downloadLink" href="#" target="_blank">Open QR to Save (long-press on mobile)</a>
+<canvas id="qrCanvas" width="300" height="300"></canvas>
+<a id="downloadLink" class="download-link" href="#" target="_blank">Open QR to Save (long-press on mobile)</a>
+
+<footer>
+  Contact Developer - 
+  <a href="https://www.instagram.com/_a.a.r.i.z07_?igsh=cDBtZWt0b3dqeXQy" target="_blank">
+    _a.a.r.i.z07_
+  </a>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script>
@@ -82,7 +110,6 @@ const canvas = document.getElementById('qrCanvas');
 const ctx = canvas.getContext('2d');
 let selectedLogo = "";
 
-// Logo selection
 document.querySelectorAll('[data-logo]').forEach(img=>{
   img.addEventListener('click', ()=>{
     document.querySelectorAll('[data-logo]').forEach(i=>i.classList.remove('selected'));
@@ -90,6 +117,9 @@ document.querySelectorAll('[data-logo]').forEach(img=>{
     selectedLogo = img.src;
   });
 });
+
+// Live preview on gradient change
+document.getElementById('gradientPreset').addEventListener('change', ()=>generateQR());
 
 function generateQR() {
   let type = document.getElementById('type').value;
@@ -104,36 +134,46 @@ function generateQR() {
   else if(type==="whatsapp") qrData = `https://wa.me/${input.replace(/\D/g,'')}`;
   else qrData = input;
 
-  QRCode.toDataURL(qrData, { margin:1, width:280 }, function(err, url){
+  const gradientColors = document.getElementById('gradientPreset').value.split(",");
+
+  QRCode.toCanvas(canvas, qrData, { 
+    errorCorrectionLevel: 'H',
+    margin:1,
+    scale:6,
+    color: { dark:"#000000", light:"#FFFFFF" }
+  }, function(err){
     if(err){ alert("QR generation failed"); return; }
 
-    let img = new Image();
-    img.src = url;
-    img.onload = function(){
-      const gradientColors = document.getElementById('gradientPreset').value.split(",");
-      let gradient = ctx.createLinearGradient(0,0,canvas.width,canvas.height);
-      gradient.addColorStop(0, gradientColors[0]);
-      gradient.addColorStop(1, gradientColors[1]);
-
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      ctx.fillStyle = gradient;
-      ctx.drawImage(img,0,0,canvas.width,canvas.height);
-
-      // Logo
-      let logoURL = document.getElementById('customLogo').value || selectedLogo;
-      if(logoURL){
-        let logo = new Image();
-        logo.crossOrigin="anonymous";
-        logo.src = logoURL;
-        logo.onload = function(){
-          let size = canvas.width*0.2;
-          let x = (canvas.width - size)/2;
-          let y = (canvas.height - size)/2;
-          ctx.drawImage(logo,x,y,size,size);
-          updateDownloadLink();
-        }
-      } else updateDownloadLink();
+    // Apply gradient
+    const imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
+    const grad = ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+    for(let i=0;i<gradientColors.length;i++){
+      grad.addColorStop(i/(gradientColors.length-1), gradientColors[i]);
     }
+    for(let y=0;y<canvas.height;y++){
+      for(let x=0;x<canvas.width;x++){
+        const i = (y*canvas.width + x)*4;
+        if(imgData.data[i] < 128){
+          ctx.fillStyle = grad;
+          ctx.fillRect(x,y,1,1);
+        }
+      }
+    }
+
+    // Add logo
+    let logoURL = document.getElementById('customLogo').value || selectedLogo;
+    if(logoURL){
+      let logo = new Image();
+      logo.crossOrigin="anonymous";
+      logo.src = logoURL;
+      logo.onload = function(){
+        let size = canvas.width*0.2;
+        let x = (canvas.width - size)/2;
+        let y = (canvas.height - size)/2;
+        ctx.drawImage(logo,x,y,size,size);
+        updateDownloadLink();
+      }
+    } else updateDownloadLink();
   });
 }
 
