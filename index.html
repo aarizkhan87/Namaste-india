@@ -969,37 +969,3 @@ function stopWaterEject() {
 </head>
 <body>
 
-<button id="toggleBtn">Mood Toggle</button>
-<button id="sosBtn">SOS</button>
-
-<audio id="beepAudio" loop>
-  <source src="https://www.soundjay.com/button/beep-07.wav" type="audio/wav">
-</audio>
-
-<script>
-let beepAudio = document.getElementById('beepAudio');
-let toggleBtn = document.getElementById('toggleBtn');
-let sosBtn = document.getElementById('sosBtn');
-let isPlaying = false;
-
-toggleBtn.addEventListener('click', () => {
-  if (!isPlaying) {
-    beepAudio.play();
-    isPlaying = true;
-  } else {
-    beepAudio.pause();
-    beepAudio.currentTime = 0;
-    isPlaying = false;
-  }
-});
-
-sosBtn.addEventListener('click', () => {
-  beepAudio.pause();
-  beepAudio.currentTime = 0;
-  isPlaying = false;
-  alert("Beep stopped by SOS!");
-});
-</script>
-
-</body>
-</html>
