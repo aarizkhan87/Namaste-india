@@ -1,271 +1,455 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fancy QR Generator + Scanner</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Namaste India — QR Generator & File Scanner</title>
+<link rel="icon" href="data:,">
 <style>
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  text-align: center;
-  padding: 20px;
-  background: linear-gradient(135deg,#fdfbfb,#ebedee);
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-input, select, button {
-  padding: 10px;
-  margin: 5px 0;
-  width: 90%;
-  max-width: 320px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-}
-canvas {
-  margin-top: 15px;
-  border-radius: 12px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.3);
-  background: #fff;
-}
-h2 { color: #00796b; font-size: 22px; margin-bottom: 10px; }
-.logo-buttons img {
-  width: 40px;
-  height: 40px;
-  margin: 5px;
-  cursor: pointer;
-  border-radius: 8px;
-  border: 2px solid transparent;
-  transition: border 0.2s;
-}
-.logo-buttons img.selected { border: 2px solid #00796b; }
-a.download-link { display: block; margin-top: 10px; font-weight: bold; color: #ff5722; word-break: break-all; text-decoration: none; }
-footer {
-  margin-top: auto;
-  padding: 15px 0;
-  font-family: 'Cursive', sans-serif;
-  font-size: 18px;
-  color: #ff4081;
-  letter-spacing: 1px;
-  text-shadow: 1px 1px 2px #00000050;
-}
-footer a { color: #ff4081; text-decoration: none; }
-footer a:hover { text-decoration: underline; }
+  :root{
+    --accent:#ff4081;
+    --card-radius:16px;
+    --glass: rgba(255,255,255,0.6);
+  }
+  /* Light / Dark handled with .dark on body */
+  body{
+    margin:0;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    background: linear-gradient(135deg,#fdfbfb,#ebedee);
+    color:#222;
+    transition:background .35s, color .35s;
+  }
+  body.dark{
+    background: linear-gradient(135deg,#0f1724,#122233);
+    color:#e6eef8;
+  }
 
-/* Scanner Styles */
-#scannerContainer {
-  display:none;
-  position: relative;
-  width: 320px;
-  margin: 20px auto;
-}
-#qr-video {
-  width: 100%;
-  border-radius: 12px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.4);
-}
-#stopScanBtn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: red;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-}
+  header{
+    width:100%;
+    padding:14px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    max-width:1100px;
+    box-sizing:border-box;
+  }
+  .brand{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    font-weight:700;
+    font-size:20px;
+  }
+  .brand .emoji{ font-size:22px; transform: translateY(1px); }
+  .mode-switch{
+    background:transparent;
+    border:1px solid rgba(0,0,0,0.08);
+    padding:8px 12px;
+    border-radius:999px;
+    cursor:pointer;
+    display:inline-flex;
+    gap:8px;
+    align-items:center;
+  }
+  body.dark .mode-switch{ border-color: rgba(255,255,255,0.15); }
 
-/* Modal */
-#scanModal {
-  position: fixed; top:0; left:0; width:100%; height:100%;
-  background: rgba(0,0,0,0.7);
-  display:flex; align-items:center; justify-content:center;
-  z-index:2000; flex-direction:column; color:white;
-}
-#scanModalContent {
-  background:#fff; color:#333; padding:25px;
-  border-radius:15px; text-align:center;
-  width:80%; max-width:350px;
-}
-#scanModalContent button {
-  padding:12px 20px; margin-top:15px; border:none;
-  border-radius:8px; font-size:16px;
-  background:linear-gradient(135deg,#00c6ff,#0072ff);
-  color:white; cursor:pointer;
-  box-shadow:0 4px 10px rgba(0,0,0,0.3);
-}
+  /* layout */
+  .wrap{
+    width:100%;
+    max-width:1100px;
+    display:grid;
+    grid-template-columns: 1fr 420px;
+    gap:18px;
+    padding:18px;
+    box-sizing:border-box;
+  }
+  @media (max-width:920px){ .wrap{ grid-template-columns: 1fr; } }
+
+  .card{
+    background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.72));
+    border-radius:var(--card-radius);
+    padding:18px;
+    box-shadow: 0 8px 30px rgba(14,30,37,0.07);
+    transition: background .3s, box-shadow .3s;
+  }
+  body.dark .card{
+    background: linear-gradient(180deg, rgba(8,12,20,0.65), rgba(12,18,28,0.5));
+    box-shadow: 0 8px 30px rgba(2,6,12,0.6);
+  }
+
+  h1,h2{ margin:8px 0; }
+  h1{ font-family: "Cursive", Georgia; color:var(--accent); text-shadow: 1px 1px 6px rgba(0,0,0,0.12); }
+  body.dark h1{ color:#ffd6e6; text-shadow: 1px 1px 6px rgba(0,0,0,0.35); }
+
+  .controls { display:flex; flex-direction:column; align-items:center; gap:8px; }
+  select,input[type=text], button{
+    width:92%;
+    max-width:360px;
+    padding:10px 12px;
+    border-radius:10px;
+    border:1px solid #d6d6d6;
+    font-size:15px;
+    outline:none;
+  }
+  body.dark select,input[type=text]{ border-color:#394a5a; background:#0f2130; color:#e6eef8; }
+  button.primary{ background: linear-gradient(135deg,#ff8a65,#ff4081); color:white; border:none; cursor:pointer; font-weight:700; }
+  button.ghost{ background:transparent; border:1px solid rgba(0,0,0,0.08); }
+
+  /* logos */
+  .logos{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:8px; }
+  .logos img{ width:46px; height:46px; object-fit:cover; border-radius:10px; cursor:pointer; border:2px solid transparent; transition:transform .15s, border-color .15s; }
+  .logos img:hover{ transform:scale(1.06); }
+  .logos img.selected{ border-color:var(--accent); transform:scale(1.03); }
+
+  /* QR canvas area */
+  .qrcanvas-wrap{ text-align:center; margin-top:10px; }
+  #qrcodeCanvas{ width:300px; height:300px; border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,0.08); background:white; }
+
+  /* scanner side */
+  #scannerCard .muted{ color: #6b7280; font-size:14px; }
+  body.dark #scannerCard .muted{ color:#9fb0c8; }
+
+  /* file picker UI */
+  .file-row{ display:flex; gap:8px; align-items:center; justify-content:center; margin-top:8px; flex-wrap:wrap; }
+  .file-row label{ cursor:pointer; border-radius:10px; padding:10px 14px; background: linear-gradient(135deg,#00c6ff,#0072ff); color:white; font-weight:700; }
+
+  /* result */
+  #scan-result{ font-weight:700; color:var(--accent); margin-top:12px; word-break:break-word; }
+
+  /* footer */
+  footer{
+    width:100%;
+    margin-top:24px;
+    padding:18px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:12px;
+    background: linear-gradient(90deg,#ff6ec4,#7873f5);
+    color:white;
+    border-top-left-radius:18px;
+    border-top-right-radius:18px;
+    box-shadow: 0 -6px 30px rgba(120,115,245,0.12);
+  }
+  .fancy-name{
+    background: linear-gradient(90deg,#fff,#ffd6e6,#fff);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    font-family:'Cursive';
+    font-size:20px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  /* small */
+  .small{ font-size:13px; color:#6b7280; }
+  body.dark .small{ color:#9fb0c8; }
 </style>
 </head>
 <body>
-<h2>Fancy QR Generator</h2>
 
-<select id="type">
-  <option value="text">Text</option>
-  <option value="url">Link/URL</option>
-  <option value="wifi">WiFi</option>
-  <option value="phone">Phone Number</option>
-  <option value="whatsapp">WhatsApp</option>
-</select>
-<br>
-<input type="text" id="data" placeholder="Enter text, link, WiFi, phone, or WhatsApp"><br>
+<header>
+  <div class="brand">
+    <span class="emoji">🌸</span>
+    <div>
+      <div style="font-size:14px;opacity:.9">Namaste India</div>
+      <div style="font-size:12px;opacity:.7">QR Tools — Generator & File Scanner</div>
+    </div>
+  </div>
 
-<label>Gradient:</label><br>
-<select id="gradientPreset">
-  <option value="#ff5722,#4caf50">Orange → Green</option>
-  <option value="#2196f3,#9c27b0">Blue → Purple</option>
-  <option value="#f44336,#ffeb3b">Red → Yellow</option>
-  <option value="#ff0080,#ff8c00">Pink → Orange</option>
-  <option value="#00bcd4,#8e24aa">Cyan → Violet</option>
-  <option value="#4caf50,#ffeb3b">Green → Yellow</option>
-  <option value="#ff5722,#9c27b0">Orange → Purple</option>
-  <option value="#3f51b5,#2196f3">Indigo → Blue</option>
-  <option value="#e91e63,#ff9800">Pink → Orange</option>
-  <option value="#ff0000,#00ff00,#0000ff">Rainbow</option>
-</select><br>
+  <button class="mode-switch" id="modeBtn" title="Toggle light / dark">
+    <span id="modeIcon">🌗</span>
+    <span style="font-weight:700">Mode</span>
+  </button>
+</header>
 
-<label>Logo:</label>
-<div class="logo-buttons">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" data-logo>
-  <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" data-logo>
-  <img src="https://upload.wikimedia.org/wikipedia/commons/4/42/YouTube_icon_%282013-2017%29.png" data-logo>
-  <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" data-logo>
-  <img src="https://upload.wikimedia.org/wikipedia/commons/a/ab/Android_O_Preview_Logo.png" data-logo>
-  <img src="https://upload.wikimedia.org/wikipedia/commons/1/12/Generic_QR_code_icon.png" data-logo>
-</div>
-<input type="text" id="customLogo" placeholder="Or custom logo URL"><br>
+<!-- main layout -->
+<div class="wrap">
+  <!-- LEFT: generator -->
+  <div class="card">
+    <h1>🌺 Namaste India</h1>
+    <div class="controls">
+      <h2>🎨 Fancy QR Generator</h2>
 
-<button onclick="generateQR()">Generate Fancy QR</button>
+      <select id="type">
+        <option value="text">Text</option>
+        <option value="url">Link / URL</option>
+        <option value="wifi">WiFi (SSID,WPA,password)</option>
+        <option value="phone">Phone Number</option>
+        <option value="whatsapp">WhatsApp (country+number)</option>
+      </select>
 
-<canvas id="qrCanvas" width="300" height="300"></canvas>
-<a id="downloadLink" class="download-link" href="#" target="_blank">Open QR to Save (long-press on mobile)</a>
+      <input id="data" type="text" placeholder="Enter text / link / phone / wifi..." />
 
-<!-- Scanner Section -->
-<h2 style="margin-top:30px;">QR Scanner</h2>
-<div id="scannerContainer">
-  <video id="qr-video"></video>
-  <button id="stopScanBtn" onclick="stopScanner()">Stop</button>
-</div>
-<p id="scan-result">Scan result will appear here</p>
+      <label style="width:92%;max-width:360px;text-align:left;margin-top:6px">Gradient preset</label>
+      <select id="gradientPreset" style="width:92%;max-width:360px">
+        <option value="#ff5722,#4caf50">Orange → Green</option>
+        <option value="#2196f3,#9c27b0">Blue → Purple</option>
+        <option value="#f44336,#ffeb3b">Red → Yellow</option>
+        <option value="#ff0080,#ff8c00">Pink → Orange</option>
+        <option value="#00bcd4,#8e24aa">Cyan → Violet</option>
+        <option value="#4caf50,#ffeb3b">Green → Yellow</option>
+        <option value="#ff5722,#9c27b0">Orange → Purple</option>
+        <option value="#3f51b5,#2196f3">Indigo → Blue</option>
+        <option value="#e91e63,#ff9800">Pink → Orange</option>
+        <option value="#ff0000,#00ff00,#0000ff">Rainbow</option>
+        <option value="#ff6ec4,#7873f5">Pink → Purple</option>
+        <option value="#00f260,#0575e6">Mint → Blue</option>
+      </select>
 
-<!-- Modal -->
-<div id="scanModal">
-  <div id="scanModalContent">
-    <h3>📷 QR Scanner</h3>
-    <p>Click below to allow camera access and start scanning</p>
-    <button onclick="startFromModal()">Start Scanning</button>
+      <div style="width:92%;max-width:360px;text-align:left;margin-top:8px">Choose logo (optional)</div>
+      <div class="logos" id="logos">
+        <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" data-logo alt="wa" title="WhatsApp">
+        <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" data-logo alt="ig" title="Instagram">
+        <img src="https://cdn-icons-png.flaticon.com/512/174/174883.png" data-logo alt="yt" title="YouTube">
+        <img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" data-logo alt="fb" title="Facebook">
+      </div>
+
+      <input id="customLogo" type="text" placeholder="Custom logo URL (leave empty if none)" />
+
+      <div style="display:flex;gap:10px;width:92%;max-width:360px;margin-top:10px">
+        <button class="primary" onclick="generateGradientQR()" style="flex:1">Generate</button>
+        <button class="ghost" onclick="downloadPNG()" style="flex:1">Download</button>
+      </div>
+
+      <div class="qrcanvas-wrap" style="width:100%;display:flex;flex-direction:column;align-items:center">
+        <canvas id="qrcodeCanvas" width="600" height="600"></canvas>
+        <div class="small">Tap & hold the image to save (mobile) — or use Download button.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: scanner (file only) -->
+  <div id="scannerCard" class="card">
+    <h2>📂 QR Scanner (Upload file)</h2>
+    <div class="small">Choose a QR image (PNG/JPG). The decoded result will appear in bold below.</div>
+
+    <div class="file-row" style="margin-top:12px">
+      <label for="fileInput">📁 Upload QR image</label>
+      <input id="fileInput" type="file" accept="image/*" style="display:none">
+    </div>
+
+    <div id="scan-result" style="margin-top:16px; color:var(--accent); font-weight:800;">No QR scanned yet</div>
+
+    <div style="margin-top:12px" class="small">Scanned result will auto-fill the generator input so you can instantly recreate a decorative QR.</div>
   </div>
 </div>
 
 <footer>
-  Contact Developer - 
-  <a href="https://www.instagram.com/_a.a.r.i.z07_?igsh=cDBtZWt0b3dqeXQy" target="_blank">
-    _a.a.r.i.z07_
-  </a>
+  <div>Contact Developer — <span class="fancy-name">_a.a.r.i.z07_</span></div>
 </footer>
 
+<!-- libs -->
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-<script>
-const canvas = document.getElementById('qrCanvas');
-const ctx = canvas.getContext('2d');
-let selectedLogo = "";
+<script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
 
-// Logo select
-document.querySelectorAll('[data-logo]').forEach(img=>{
-  img.addEventListener('click', ()=>{
-    document.querySelectorAll('[data-logo]').forEach(i=>i.classList.remove('selected'));
-    img.classList.add('selected');
-    selectedLogo = img.src;
-  });
+<script>
+/* --------- theme toggle --------- */
+const body = document.body;
+const modeBtn = document.getElementById('modeBtn');
+const modeIcon = document.getElementById('modeIcon');
+(function initMode(){
+  const save = localStorage.getItem('ni_mode');
+  if(save==='dark'){ body.classList.add('dark'); modeIcon.textContent='🌙'; }
+  else { body.classList.remove('dark'); modeIcon.textContent='🌗'; }
+})();
+modeBtn.addEventListener('click', ()=>{
+  body.classList.toggle('dark');
+  const dark = body.classList.contains('dark');
+  localStorage.setItem('ni_mode', dark ? 'dark' : 'light');
+  modeIcon.textContent = dark ? '🌙' : '🌗';
 });
 
-// Generate QR
-function generateQR() {
-  let type = document.getElementById('type').value;
-  let input = document.getElementById('data').value.trim();
-  let qrData = "";
+/* --------- gradient QR generation (mask method) --------- */
+const visibleCanvas = document.getElementById('qrcodeCanvas');
+const vctx = visibleCanvas.getContext('2d');
 
-  if(type==="wifi"){
-    let parts = input.split(",");
-    if(parts.length===3) qrData = `WIFI:S:${parts[0]};T:${parts[1]};P:${parts[2]};;`;
-    else { alert("Enter WiFi as: SSID,WPA/WEP,password"); return; }
-  } else if(type==="phone") qrData = `tel:${input}`;
-  else if(type==="whatsapp") qrData = `https://wa.me/${input.replace(/\D/g,'')}`;
-  else qrData = input;
+function generateGradientQR(){
+  const type = document.getElementById('type').value;
+  let data = document.getElementById('data').value.trim();
+  if(!data){ alert('Please enter data or scan a QR first'); return; }
 
-  const gradientColors = document.getElementById('gradientPreset').value.split(",");
+  if(type==='wifi'){
+    const parts = data.split(',');
+    if(parts.length!==3){ alert('WiFi format: SSID,WPA,password'); return; }
+    data = `WIFI:S:${parts[0]};T:${parts[1]};P:${parts[2]};;`;
+  } else if(type==='phone'){
+    data = `tel:${data}`;
+  } else if(type==='whatsapp'){
+    data = `https://wa.me/${data.replace(/\D/g,'')}`;
+  }
 
-  QRCode.toCanvas(canvas, qrData, { 
-    errorCorrectionLevel: 'H',
-    margin:1,
-    scale:6,
-    color: { dark:"#000000", light:"#FFFFFF" }
-  }, function(err){
-    if(err){ alert("QR generation failed"); return; }
+  const gradientPreset = document.getElementById('gradientPreset').value;
+  const gcolors = gradientPreset.split(',').map(s=>s.trim());
+  const logoURL = (document.getElementById('customLogo').value || document.querySelector('[data-logo].selected')?.src) || null;
 
-    const imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
-    const grad = ctx.createLinearGradient(0,0,canvas.width,canvas.height);
-    for(let i=0;i<gradientColors.length;i++){
-      grad.addColorStop(i/(gradientColors.length-1), gradientColors[i]);
-    }
-    for(let y=0;y<canvas.height;y++){
-      for(let x=0;x<canvas.width;x++){
-        const i = (y*canvas.width + x)*4;
-        if(imgData.data[i] < 128){
-          ctx.fillStyle = grad;
-          ctx.fillRect(x,y,1,1);
+  // Generate QR as dataURL (high resolution for sharpness)
+  QRCode.toDataURL(data, { errorCorrectionLevel:'H', margin:1, width:600, color: { dark:'#000000', light:'#ffffff' } }, function(err, url){
+    if(err){ console.error(err); alert('QR generation failed'); return; }
+
+    const maskImg = new Image();
+    maskImg.crossOrigin = 'anonymous';
+    maskImg.onload = function(){
+      // create mask canvas
+      const mask = document.createElement('canvas');
+      const mw = mask.width = maskImg.width;
+      const mh = mask.height = maskImg.height;
+      const mctx = mask.getContext('2d');
+      mctx.drawImage(maskImg,0,0);
+
+      // convert white -> transparent, black -> opaque (create alpha mask)
+      const id = mctx.getImageData(0,0,mw,mh);
+      for(let i=0;i<id.data.length;i+=4){
+        const r=id.data[i], g=id.data[i+1], b=id.data[i+2];
+        // if pixel is near-white assume background: make transparent
+        if(r>220 && g>220 && b>220){
+          id.data[i+3]=0; // transparent
+        } else {
+          id.data[i+3]=255; // opaque
+          // make it white (not necessary) id.data[i]=255; id.data[i+1]=255; id.data[i+2]=255;
         }
       }
-    }
+      mctx.putImageData(id,0,0);
 
-    let logoURL = document.getElementById('customLogo').value || selectedLogo;
-    if(logoURL){
-      let logo = new Image();
-      logo.crossOrigin="anonymous";
-      logo.src = logoURL;
-      logo.onload = function(){
-        let size = canvas.width*0.2;
-        let x = (canvas.width - size)/2;
-        let y = (canvas.height - size)/2;
-        ctx.drawImage(logo,x,y,size,size);
-        updateDownloadLink();
+      // draw gradient on visible canvas then mask it
+      const w = visibleCanvas.width = mw;
+      const h = visibleCanvas.height = mh;
+
+      // clear
+      vctx.clearRect(0,0,w,h);
+
+      // create linear gradient (left->right diagonal)
+      const grad = vctx.createLinearGradient(0,0,w,h);
+      // add stops
+      for(let i=0;i<gcolors.length;i++){
+        grad.addColorStop(i/(gcolors.length-1), gcolors[i]);
       }
-    } else updateDownloadLink();
+      vctx.fillStyle = grad;
+      vctx.fillRect(0,0,w,h);
+
+      // use destination-in to keep gradient where mask is opaque
+      vctx.globalCompositeOperation = 'destination-in';
+      vctx.drawImage(mask,0,0);
+
+      // put a background behind (white for light mode, dark for dark mode)
+      vctx.globalCompositeOperation = 'destination-over';
+      vctx.fillStyle = body.classList.contains('dark') ? '#071226' : '#ffffff';
+      vctx.fillRect(0,0,w,h);
+
+      // reset composite
+      vctx.globalCompositeOperation = 'source-over';
+
+      // draw center logo if provided (try-catch to avoid taint)
+      if(logoURL){
+        const logo = new Image();
+        logo.crossOrigin = 'anonymous';
+        logo.onload = function(){
+          // center logo, 20% size
+          const size = Math.floor(w * 0.20);
+          vctx.drawImage(logo, (w-size)/2, (h-size)/2, size, size);
+        };
+        logo.onerror = function(){
+          // ignore logo errors (CORS)
+          console.warn('Logo load failed (CORS or invalid url)');
+        };
+        logo.src = logoURL;
+      }
+
+      // update download link
+      updateDownloadLink();
+    };
+    maskImg.onerror = function(){ alert('Failed to create QR mask'); };
+    maskImg.src = url;
   });
 }
 
 function updateDownloadLink(){
   const link = document.getElementById('downloadLink');
-  link.href = canvas.toDataURL("image/png");
-  link.textContent = "Open QR to Save (long-press on mobile)";
-}
-
-// Scanner logic
-let html5QrCode;
-function startFromModal() {
-  document.getElementById("scanModal").style.display = "none";
-  document.getElementById("scannerContainer").style.display = "block";
-
-  html5QrCode = new Html5Qrcode("qr-video");
-  html5QrCode.start(
-    { facingMode: "environment" },
-    { fps: 10, qrbox: 250 },
-    qrCodeMessage => {
-      document.getElementById("scan-result").textContent = "Result: " + qrCodeMessage;
-    },
-    errorMessage => {}
-  );
-}
-function stopScanner(){
-  if(html5QrCode){
-    html5QrCode.stop().then(()=> {
-      document.getElementById("scannerContainer").style.display = "none";
-    });
+  try{
+    link.href = visibleCanvas.toDataURL('image/png');
+  }catch(e){
+    // if canvas is tainted (logo cross-origin), offer to open in new tab (still may be blocked)
+    link.href = '#';
+    console.warn('Canvas may be tainted; download disabled', e);
   }
 }
+
+function downloadPNG(){
+  try{
+    const dataUrl = visibleCanvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = 'namaste_qr.png';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }catch(e){
+    alert('Download blocked (logo may be from another domain without CORS). Use "Open" link and save manually.');
+  }
+}
+
+/* ---------- file-scan (jsQR) ---------- */
+const fileInput = document.getElementById('fileInput');
+const scanResult = document.getElementById('scan-result');
+
+fileInput.addEventListener('change', (ev)=>{
+  const f = ev.target.files[0];
+  if(!f) return;
+  const url = URL.createObjectURL(f);
+  const img = new Image();
+  img.onload = function(){
+    const c = document.createElement('canvas');
+    c.width = img.naturalWidth;
+    c.height = img.naturalHeight;
+    const cx = c.getContext('2d');
+    cx.drawImage(img,0,0);
+    try{
+      const id = cx.getImageData(0,0,c.width,c.height);
+      const code = jsQR(id.data, id.width, id.height, { inversionAttempts: 'attemptBoth' });
+      if(code){
+        scanResult.textContent = code.data;
+        scanResult.style.fontWeight = '900';
+        // auto-fill generator input and create QR
+        document.getElementById('data').value = code.data;
+        generateGradientQR();
+      } else {
+        scanResult.textContent = '❌ No QR found in image';
+        scanResult.style.fontWeight = '700';
+      }
+    }catch(err){
+      scanResult.textContent = 'Error reading image';
+      console.error(err);
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  };
+  img.onerror = function(){ scanResult.textContent = 'Invalid image file'; URL.revokeObjectURL(url); };
+  img.src = url;
+});
+
+/* quick logo selector wiring */
+document.querySelectorAll('[data-logo]').forEach(img=>{
+  img.addEventListener('click', ()=>{
+    document.querySelectorAll('[data-logo]').forEach(i=>i.classList.remove('selected'));
+    img.classList.add('selected');
+    // auto set customLogo to selected src (optional)
+    document.getElementById('customLogo').value = img.src;
+  });
+});
+
+/* helpful: press Enter in data input to generate */
+document.getElementById('data').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') generateGradientQR();
+});
+
+/* initial sample QR */
+document.addEventListener('DOMContentLoaded', ()=> {
+  document.getElementById('data').value = 'https://instagram.com/_a.a.r.i.z07_';
+  generateGradientQR();
+});
 </script>
 </body>
-</html>
+  </html>
