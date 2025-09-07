@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Namaste India — QR Generator & File Scanner</title>
+<title>Namaste India — QR Generator & File Scanner & Free Fire UID</title>
 <link rel="icon" href="data:,">
 <style>
   :root{
@@ -54,7 +54,6 @@
     align-items:center;
   }
   body.dark .mode-switch{ border-color: rgba(255,255,255,0.15); }
-
   .wrap{
     width:100%;
     max-width:1100px;
@@ -65,7 +64,6 @@
     box-sizing:border-box;
   }
   @media (max-width:920px){ .wrap{ grid-template-columns: 1fr; } }
-
   .card{
     background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.72));
     border-radius:var(--card-radius);
@@ -77,11 +75,9 @@
     background: linear-gradient(180deg, rgba(8,12,20,0.65), rgba(12,18,28,0.5));
     box-shadow: 0 8px 30px rgba(2,6,12,0.6);
   }
-
   h1,h2{ margin:8px 0; }
   h1{ font-family: "Cursive", Georgia; color:var(--accent); text-shadow: 1px 1px 6px rgba(0,0,0,0.12); }
   body.dark h1{ color:#ffd6e6; text-shadow: 1px 1px 6px rgba(0,0,0,0.35); }
-
   .controls { display:flex; flex-direction:column; align-items:center; gap:8px; }
   select,input[type=text], button{
     width:92%;
@@ -95,23 +91,17 @@
   body.dark select,input[type=text]{ border-color:#394a5a; background:#0f2130; color:#e6eef8; }
   button.primary{ background: linear-gradient(135deg,#ff8a65,#ff4081); color:white; border:none; cursor:pointer; font-weight:700; }
   button.ghost{ background:transparent; border:1px solid rgba(0,0,0,0.08); }
-
   .logos{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:8px; }
   .logos img{ width:46px; height:46px; object-fit:cover; border-radius:10px; cursor:pointer; border:2px solid transparent; transition:transform .15s, border-color .15s; }
   .logos img:hover{ transform:scale(1.06); }
   .logos img.selected{ border-color:var(--accent); transform:scale(1.03); }
-
   .qrcanvas-wrap{ text-align:center; margin-top:10px; }
   #qrcodeCanvas{ width:300px; height:300px; border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,0.08); background:white; }
-
   #scannerCard .muted{ color: #6b7280; font-size:14px; }
   body.dark #scannerCard .muted{ color:#9fb0c8; }
-
   .file-row{ display:flex; gap:8px; align-items:center; justify-content:center; margin-top:8px; flex-wrap:wrap; }
   .file-row label{ cursor:pointer; border-radius:10px; padding:10px 14px; background: linear-gradient(135deg,#00c6ff,#0072ff); color:white; font-weight:700; }
-
   #scan-result{ font-weight:700; color:var(--accent); margin-top:12px; word-break:break-word; }
-
   footer{
     width:100%;
     margin-top:24px;
@@ -134,7 +124,6 @@
     font-size:20px;
     text-shadow: 0 2px 8px rgba(0,0,0,0.15);
   }
-
   .small{ font-size:13px; color:#6b7280; }
   body.dark .small{ color:#9fb0c8; }
 </style>
@@ -149,7 +138,6 @@
       <div style="font-size:12px;opacity:.7">QR Tools — Generator & File Scanner</div>
     </div>
   </div>
-
   <button class="mode-switch" id="modeBtn" title="Toggle light / dark">
     <span id="modeIcon">🌗</span>
     <span style="font-weight:700">Mode</span>
@@ -157,11 +145,11 @@
 </header>
 
 <div class="wrap">
+  <!-- LEFT: QR generator -->
   <div class="card">
     <h1>🌺 Namaste India</h1>
     <div class="controls">
       <h2>🎨 Fancy QR Generator</h2>
-
       <select id="type">
         <option value="text">Text</option>
         <option value="url">Link / URL</option>
@@ -169,9 +157,7 @@
         <option value="phone">Phone Number</option>
         <option value="whatsapp">WhatsApp (country+number)</option>
       </select>
-
       <input id="data" type="text" placeholder="Enter text / link / phone / wifi..." />
-
       <label style="width:92%;max-width:360px;text-align:left;margin-top:6px">Gradient preset</label>
       <select id="gradientPreset" style="width:92%;max-width:360px">
         <option value="#ff5722,#4caf50">Orange → Green</option>
@@ -187,7 +173,6 @@
         <option value="#ff6ec4,#7873f5">Pink → Purple</option>
         <option value="#00f260,#0575e6">Mint → Blue</option>
       </select>
-
       <div style="width:92%;max-width:360px;text-align:left;margin-top:8px">Choose logo (optional)</div>
       <div class="logos" id="logos">
         <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" data-logo alt="wa" title="WhatsApp">
@@ -195,14 +180,11 @@
         <img src="https://cdn-icons-png.flaticon.com/512/174/174883.png" data-logo alt="yt" title="YouTube">
         <img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" data-logo alt="fb" title="Facebook">
       </div>
-
       <input id="customLogo" type="text" placeholder="Custom logo URL (leave empty if none)" />
-
       <div style="display:flex;gap:10px;width:92%;max-width:360px;margin-top:10px">
         <button class="primary" onclick="generateGradientQR()" style="flex:1">Generate</button>
         <button class="ghost" onclick="downloadPNG()" style="flex:1">Download</button>
       </div>
-
       <div class="qrcanvas-wrap" style="width:100%;display:flex;flex-direction:column;align-items:center">
         <canvas id="qrcodeCanvas" width="600" height="600"></canvas>
         <div class="small">Tap & hold the image to save (mobile) — or use Download button.</div>
@@ -210,19 +192,118 @@
     </div>
   </div>
 
+  <!-- RIGHT: QR scanner -->
   <div id="scannerCard" class="card">
     <h2>📂 QR Scanner (Upload file)</h2>
     <div class="small">Choose a QR image (PNG/JPG). The decoded result will appear in bold below.</div>
-
     <div class="file-row" style="margin-top:12px">
       <label for="fileInput">📁 Upload QR image</label>
       <input id="fileInput" type="file" accept="image/*" style="display:none">
     </div>
-
     <div id="scan-result" style="margin-top:16px; color:var(--accent); font-weight:800;">No QR scanned yet</div>
-
     <div style="margin-top:12px" class="small">Scanned result will auto-fill the generator input so you can instantly recreate a decorative QR.</div>
   </div>
+
+<!-- 18+ Protected Section -->
+<div id="adultCard" class="card">
+  <h2>🔞 18+ Content (Protected)</h2>
+  <div id="loginSectionAdult">
+    <input type="text" id="adultUsername" placeholder="Username">
+    <input type="password" id="adultPassword" placeholder="Password">
+    <button class="primary" id="adultLoginBtn">Enter</button>
+    <p id="adultLoginMsg" style="color:red;"></p>
+    <!-- Get credentials link -->
+    <p style="margin-top:8px; font-size:14px;">
+      Forgot credentials? 
+      <a href="https://wa.me/447877486623?text=Hi,%20I%20need%20the%2018%2B%20username%20and%20password" target="_blank">Click here to get them on WhatsApp</a>
+    </p>
+  </div>
+  <div id="protectedAdultContent" style="display:none;">
+    <h3>Welcome to the 18+ Section</h3>
+    <p>This content is only visible to authorized users.</p>
+    <p>📄 Study Material: <a href="https://drive.google.com/file/d/16guYnuJDX2ZpdE-La50Ej_5vYZHFEcTy/view?usp=drivesdk" target="_blank">Click to open</a></p>
+  </div>
+</div>
+
+<script>
+  // 18+ Content Protection
+  const adultLoginBtn = document.getElementById('adultLoginBtn');
+  const adultUsername = document.getElementById('adultUsername');
+  const adultPassword = document.getElementById('adultPassword');
+  const adultLoginMsg = document.getElementById('adultLoginMsg');
+  const protectedAdultContent = document.getElementById('protectedAdultContent');
+
+  // Hardcoded credentials
+  const adultCorrectUsername = "user18";
+  const adultCorrectPassword = "pass18";
+
+  adultLoginBtn.addEventListener('click', () => {
+    const username = adultUsername.value;
+    const password = adultPassword.value;
+
+    if(username === adultCorrectUsername && password === adultCorrectPassword){
+      adultLoginMsg.textContent = "";
+      document.getElementById('loginSectionAdult').style.display = 'none';
+      protectedAdultContent.style.display = 'block';
+    } else {
+      adultLoginMsg.textContent = "Incorrect username or password!";
+    }
+  });
+</script>
+</div>
+
+<script>
+  // 18+ Content Protection
+  const adultLoginBtn = document.getElementById('adultLoginBtn');
+  const adultUsername = document.getElementById('adultUsername');
+  const adultPassword = document.getElementById('adultPassword');
+  const adultLoginMsg = document.getElementById('adultLoginMsg');
+  const protectedAdultContent = document.getElementById('protectedAdultContent');
+
+  // Hardcoded credentials
+  const adultCorrectUsername = "user18";
+  const adultCorrectPassword = "pass18";
+
+  adultLoginBtn.addEventListener('click', () => {
+    const username = adultUsername.value;
+    const password = adultPassword.value;
+
+    if(username === adultCorrectUsername && password === adultCorrectPassword){
+      adultLoginMsg.textContent = "";
+      document.getElementById('loginSectionAdult').style.display = 'none';
+      protectedAdultContent.style.display = 'block';
+    } else {
+      adultLoginMsg.textContent = "Incorrect username or password!";
+    }
+  });
+</script>
+</div>
+
+<script>
+  // 18+ Content Protection
+  const adultLoginBtn = document.getElementById('adultLoginBtn');
+  const adultUsername = document.getElementById('adultUsername');
+  const adultPassword = document.getElementById('adultPassword');
+  const adultLoginMsg = document.getElementById('adultLoginMsg');
+  const protectedAdultContent = document.getElementById('protectedAdultContent');
+
+  // Hardcoded credentials (change as needed)
+  const adultCorrectUsername = "user18";
+  const adultCorrectPassword = "pass18";
+
+  adultLoginBtn.addEventListener('click', () => {
+    const username = adultUsername.value;
+    const password = adultPassword.value;
+
+    if(username === adultCorrectUsername && password === adultCorrectPassword){
+      adultLoginMsg.textContent = "";
+      document.getElementById('loginSectionAdult').style.display = 'none';
+      protectedAdultContent.style.display = 'block';
+    } else {
+      adultLoginMsg.textContent = "Incorrect username or password!";
+    }
+  });
+</script>
 </div>
 
 <footer>
@@ -232,6 +313,7 @@
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
 <script>
+/* --------- theme toggle --------- */
 const body = document.body;
 const modeBtn = document.getElementById('modeBtn');
 const modeIcon = document.getElementById('modeIcon');
@@ -247,6 +329,7 @@ modeBtn.addEventListener('click', ()=>{
   modeIcon.textContent = dark ? '🌙' : '🌗';
 });
 
+/* --------- gradient QR generation --------- */
 const visibleCanvas = document.getElementById('qrcodeCanvas');
 const vctx = visibleCanvas.getContext('2d');
 
@@ -276,21 +359,21 @@ function generateGradientQR(){
     maskImg.crossOrigin = 'anonymous';
     maskImg.onload = function(){
       const mask = document.createElement('canvas');
-      mask.width = maskImg.width;
-      mask.height = maskImg.height;
+      const mw = mask.width = maskImg.width;
+      const mh = mask.height = maskImg.height;
       const mctx = mask.getContext('2d');
       mctx.drawImage(maskImg,0,0);
-      const id = mctx.getImageData(0,0,mask.width,mask.height);
+
+      const id = mctx.getImageData(0,0,mw,mh);
       for(let i=0;i<id.data.length;i+=4){
         const r=id.data[i], g=id.data[i+1], b=id.data[i+2];
-        if(r>220 && g>220 && b>220) id.data[i+3]=0; else id.data[i+3]=255;
+        if(r>220 && g>220 && b>220){ id.data[i+3]=0; } 
+        else { id.data[i+3]=255; }
       }
       mctx.putImageData(id,0,0);
 
-      visibleCanvas.width = mask.width;
-      visibleCanvas.height = mask.height;
-      const w = visibleCanvas.width;
-      const h = visibleCanvas.height;
+      const w = visibleCanvas.width = mw;
+      const h = visibleCanvas.height = mh;
       vctx.clearRect(0,0,w,h);
 
       const grad = vctx.createLinearGradient(0,0,w,h);
@@ -304,6 +387,7 @@ function generateGradientQR(){
       vctx.globalCompositeOperation = 'destination-over';
       vctx.fillStyle = body.classList.contains('dark') ? '#071226' : '#ffffff';
       vctx.fillRect(0,0,w,h);
+
       vctx.globalCompositeOperation = 'source-over';
 
       if(logoURL){
@@ -313,11 +397,22 @@ function generateGradientQR(){
           const size = Math.floor(w * 0.20);
           vctx.drawImage(logo, (w-size)/2, (h-size)/2, size, size);
         };
+        logo.onerror = function(){ console.warn('Logo load failed (CORS or invalid url)'); };
         logo.src = logoURL;
       }
+
+      updateDownloadLink();
     };
+    maskImg.onerror = function(){ alert('Failed to create QR mask'); };
     maskImg.src = url;
   });
+}
+
+function updateDownloadLink(){
+  const link = document.getElementById('downloadLink');
+  try{
+    link.href = visibleCanvas.toDataURL('image/png');
+  }catch(e){ link.href = '#'; console.warn('Canvas may be tainted; download disabled', e); }
 }
 
 function downloadPNG(){
@@ -329,46 +424,12 @@ function downloadPNG(){
     document.body.appendChild(a);
     a.click();
     a.remove();
-  }catch(e){ alert('Download blocked (logo may be cross-origin).'); }
+  }catch(e){ alert('Download blocked (logo may be from another domain).'); }
 }
 
+/* ---------- file-scan (jsQR) ---------- */
 const fileInput = document.getElementById('fileInput');
 const scanResult = document.getElementById('scan-result');
 
 fileInput.addEventListener('change', (ev)=>{
-  const f = ev.target.files[0];
-  if(!f) return;
-  const url = URL.createObjectURL(f);
-  const img = new Image();
-  img.onload = function(){
-    const c = document.createElement('canvas');
-    c.width = img.naturalWidth;
-    c.height = img.naturalHeight;
-    const cx = c.getContext('2d');
-    cx.drawImage(img,0,0);
-    const id = cx.getImageData(0,0,c.width,c.height);
-    const code = jsQR(id.data, id.width, id.height, { inversionAttempts: 'attemptBoth' });
-    if(code){
-      scanResult.textContent = code.data;
-      document.getElementById('data').value = code.data;
-      generateGradientQR();
-    } else { scanResult.textContent = '❌ No QR found in image'; }
-    URL.revokeObjectURL(url);
-  };
-  img.src = url;
-});
-
-document.querySelectorAll('[data-logo]').forEach(img=>{
-  img.addEventListener('click', ()=>{
-    document.querySelectorAll('[data-logo]').forEach(i=>i.classList.remove('selected'));
-    img.classList.add('selected');
-    document.getElementById('customLogo').value = img.src;
-  });
-});
-
-document.getElementById('data').addEventListener('keydown', (e)=>{
-  if(e.key === 'Enter') generateGradientQR();
-});
-</script>
-</body>
-</html
+  const f =
