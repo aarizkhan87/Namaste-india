@@ -30,6 +30,27 @@ canvas {
   background: #fff;
 }
 h2 { color: #00796b; font-size: 22px; margin-bottom: 10px; }
+
+/* Animated header */
+.animated-header {
+  text-align: center;
+  font-family: 'Cursive', sans-serif;
+  font-size: 32px;
+  font-weight: bold;
+  background: linear-gradient(270deg, #ff4081, #ffeb3b, #4caf50, #2196f3, #9c27b0);
+  background-size: 1000% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientMove 8s ease infinite;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+@keyframes gradientMove {
+  0% {background-position: 0% 50%;}
+  50% {background-position: 100% 50%;}
+  100% {background-position: 0% 50%;}
+}
+
 .logo-buttons img {
   width: 40px;
   height: 40px;
@@ -41,20 +62,34 @@ h2 { color: #00796b; font-size: 22px; margin-bottom: 10px; }
 }
 .logo-buttons img.selected { border: 2px solid #00796b; }
 a.download-link { display: block; margin-top: 10px; font-weight: bold; color: #ff5722; word-break: break-all; text-decoration: none; }
-footer {
+
+/* Animated footer */
+.animated-footer {
   margin-top: auto;
   padding: 15px 0;
   font-family: 'Cursive', sans-serif;
   font-size: 18px;
-  color: #ff4081;
   letter-spacing: 1px;
-  text-shadow: 1px 1px 2px #00000050;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  background: linear-gradient(270deg, #ff4081, #ffeb3b, #4caf50, #2196f3, #9c27b0);
+  background-size: 1000% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientMoveFooter 8s ease infinite;
 }
-footer a { color: #ff4081; text-decoration: none; }
-footer a:hover { text-decoration: underline; }
+@keyframes gradientMoveFooter {
+  0% {background-position: 0% 50%;}
+  50% {background-position: 100% 50%;}
+  100% {background-position: 0% 50%;}
+}
+.animated-footer a { color: inherit; text-decoration: none; }
+.animated-footer a:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
+
+<h1 class="animated-header">Welcome to Namaste India Website</h1>
+
 <h2>Fancy QR Generator</h2>
 
 <select id="type">
@@ -97,7 +132,7 @@ footer a:hover { text-decoration: underline; }
 <canvas id="qrCanvas" width="300" height="300"></canvas>
 <a id="downloadLink" class="download-link" href="#" target="_blank">Open QR to Save (long-press on mobile)</a>
 
-<footer>
+<footer class="animated-footer">
   Contact Developer - 
   <a href="https://www.instagram.com/_a.a.r.i.z07_?igsh=cDBtZWt0b3dqeXQy" target="_blank">
     _a.a.r.i.z07_
@@ -118,7 +153,6 @@ document.querySelectorAll('[data-logo]').forEach(img=>{
   });
 });
 
-// Live preview on gradient change
 document.getElementById('gradientPreset').addEventListener('change', ()=>generateQR());
 
 function generateQR() {
@@ -144,7 +178,6 @@ function generateQR() {
   }, function(err){
     if(err){ alert("QR generation failed"); return; }
 
-    // Apply gradient
     const imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
     const grad = ctx.createLinearGradient(0,0,canvas.width,canvas.height);
     for(let i=0;i<gradientColors.length;i++){
@@ -160,7 +193,6 @@ function generateQR() {
       }
     }
 
-    // Add logo
     let logoURL = document.getElementById('customLogo').value || selectedLogo;
     if(logoURL){
       let logo = new Image();
