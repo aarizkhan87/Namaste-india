@@ -1012,44 +1012,93 @@ function stopWaterEject() {
 </head>
 <body>
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>High Beep Mood Toggle</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #111;
+    color: #fff;
+    flex-direction: column;
+  }
+  button {
+    padding: 15px 30px;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    margin: 10px;
+    color: #fff;
+  }
+  #toggleBtn {
+    background: linear-gradient(45deg, #ff0040, #ffb300);
+  }
+  #sosBtn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: red;
+    border-radius: 50%;
+    width: 70px;
+    height: 70px;
+    font-size: 18px;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
 <button id="toggleBtn">Mood Toggle</button>
 <button id="sosBtn">SOS</button>
 
 <script>
 let toggleBtn = document.getElementById('toggleBtn');
 let sosBtn = document.getElementById('sosBtn');
+let audioCtx;
+let oscillator;
 let isPlaying = false;
-let beepInterval;
 
-// Function to play a very short beep repeatedly
+// Start beep using Web Audio API
 function startBeep() {
-    beepInterval = setInterval(() => {
-        let beep = new Audio('https://www.soundjay.com/button/beep-10.wav');
-        beep.volume = 1;
-        beep.play();
-    }, 100); // 100ms interval = 10 beeps per second
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    oscillator = audioCtx.createOscillator();
+    oscillator.type = 'square'; // High-pitched buzzer
+    oscillator.frequency.setValueAtTime(2000, audioCtx.currentTime); // 2000 Hz
+    oscillator.connect(audioCtx.destination);
+    oscillator.start();
+    isPlaying = true;
 }
 
-// Function to stop the beep
+// Stop beep
 function stopBeep() {
-    clearInterval(beepInterval);
+    if (oscillator) {
+        oscillator.stop();
+        oscillator.disconnect();
+        audioCtx.close();
+    }
+    isPlaying = false;
 }
 
 // Toggle button
 toggleBtn.addEventListener('click', () => {
     if (!isPlaying) {
         startBeep();
-        isPlaying = true;
     } else {
         stopBeep();
-        isPlaying = false;
     }
 });
 
 // SOS button stops beep immediately
 sosBtn.addEventListener('click', () => {
     stopBeep();
-    isPlaying = false;
     alert("Beep stopped by SOS!");
 });
 </script>
