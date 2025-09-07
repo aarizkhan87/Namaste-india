@@ -392,116 +392,188 @@ adultLoginBtn.addEventListener('click', ()=>{
   @media(max-width:560px){ .controls{grid-template-columns:1fr} }
 </style>
 </head>
+<<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Voice Booster + Recorder</title>
+<style>
+  body{margin:0;font-family:sans-serif;background:#0d1117;color:#eee;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px}
+  .card{background:#161b22;padding:20px;border-radius:12px;max-width:800px;width:100%;box-shadow:0 6px 20px rgba(0,0,0,0.5)}
+  h1{margin-top:0;text-align:center}
+  label{display:block;margin-top:12px;font-size:14px}
+  input[type=range]{width:100%}
+  .controls{margin:10px 0}
+  button{margin:8px 5px;padding:10px 15px;border:none;border-radius:6px;font-weight:bold;cursor:pointer}
+  button.primary{background:#ff4081;color:#fff}
+  button.secondary{background:#30363d;color:#fff}
+  .meter{height:10px;background:#333;border-radius:6px;margin-top:10px;overflow:hidden}
+  .meter > div{height:100%;width:0%;background:linear-gradient(90deg,#0ff,#0f0)}
+  footer{text-align:center;font-size:13px;margin-top:10px;color:#aaa}
+</style>
+</head>
 <body>
-  <div class="card" role="main">
-    <h1>Voice Booster — Live Microphone Amplifier</h1>
-    <p class="lead">Capture your mic, increase volume, boost bass/treble, and monitor levels. Use headphones to avoid loud feedback.</p>
+<div class="card">
+  <h1>🎤 Voice Booster + Recorder</h1>
 
-    <div class="controls">
-      <div>
-        <label>Master Gain (<span id="gainVal">1.0</span>×)</label>
-        <input id="gain" type="range" min="0" max="5" step="0.01" value="1">
-      </div>
+  <div class="controls">
+    <label>Gain: <span id="gainVal">1.0</span>×</label>
+    <input type="range" id="gain" min="0" max="5" step="0.1" value="1">
 
-      <div>
-        <label>Output Volume (<span id="volVal">1.0</span>×)</label>
-        <input id="outputVol" type="range" min="0" max="2" step="0.01" value="1">
-      </div>
+    <label>Bass: <span id="bassVal">0</span> dB</label>
+    <input type="range" id="bass" min="-15" max="15" step="1" value="0">
 
-      <div>
-        <label>Bass Boost (Low Shelf, <span id="bassVal">0</span> dB)</label>
-        <input id="bass" type="range" min="-15" max="15" step="0.5" value="0">
-      </div>
+    <label>Treble: <span id="trebleVal">0</span> dB</label>
+    <input type="range" id="treble" min="-15" max="15" step="1" value="0">
 
-      <div>
-        <label>Treble Boost (High Shelf, <span id="trebVal">0</span> dB)</label>
-        <input id="treble" type="range" min="-15" max="15" step="0.5" value="0">
-      </div>
+    <label>Output Volume: <span id="volVal">1.0</span>×</label>
+    <input type="range" id="volume" min="0" max="2" step="0.1" value="1">
 
-      <div>
-        <label>Mute</label>
-        <div class="row">
-          <button id="muteBtn" class="secondary">Mute: OFF</button>
-        </div>
-      </div>
-
-      <div>
-        <label>Visual Level</label>
-        <div class="meter"><i id="meterFill"></i></div>
-      </div>
-
-      <div class="full">
-        <div class="btn-row">
-          <button id="startBtn">Start (allow mic)</button>
-          <button id="stopBtn" class="secondary" disabled>Stop</button>
-          <button id="resetBtn" class="secondary">Reset Settings</button>
-        </div>
-        <small class="warn">⚠️ Use headphones. If you hear feedback or loud noise, immediately reduce gain or hit Stop.</small>
-      </div>
-    </div>
-
-    <footer>
-      Tip: On phones use headphones; first tap "Start" to give the browser permission to use the microphone.
-    </footer>
+    <div class="meter"><div id="meterFill"></div></div>
   </div>
 
+  <div class="controls">
+    <button class="primary" id="startBtn">Start Mic</button>
+    <button class="secondary" id="stopBtn" disabled>Stop</button>
+    <button class="secondary" id="recBtn" disabled>Start Recording</button>
+    <button class="secondary" id="downloadBtn" disabled>Download</button>
+  </div>
+
+  <footer>⚠️ Use headphones. Adjust gain/bass/treble slowly to avoid distortion.</footer>
+</div>
+
 <script>
-/*
- Voice Booster: single-file WebAudio app
- - Start captures microphone and routes through nodes:
-   MediaStreamSource -> lowShelf -> highShelf -> gain -> destination
- - Visual meter from AnalyserNode (RMS approx)
- - Safe: Mute + Stop controls included.
-*/
+let audioCtx, micStream, sourceNode, lowShelf, highShelf, gainNode, outputGain, analyser;
+let recorder, recordedChunks = [];
+let isRecording = false;
+let rafId;
 
-let audioCtx = null;
-let micStream = null;
-let sourceNode = null;
-let lowShelf = null;
-let highShelf = null;
-let gainNode = null;
-let outputGain = null;
-let analyser = null;
-let rafId = null;
-let isMuted = false;
+const gainSlider = document.getElementById("gain");
+const bassSlider = document.getElementById("bass");
+const trebleSlider = document.getElementById("treble");
+const volumeSlider = document.getElementById("volume");
+const meterFill = document.getElementById("meterFill");
 
-const startBtn = document.getElementById('startBtn');
-const stopBtn = document.getElementById('stopBtn');
-const resetBtn = document.getElementById('resetBtn');
-const muteBtn = document.getElementById('muteBtn');
+const gainVal = document.getElementById("gainVal");
+const bassVal = document.getElementById("bassVal");
+const trebleVal = document.getElementById("trebleVal");
+const volVal = document.getElementById("volVal");
 
-const gainSlider = document.getElementById('gain');
-const gainVal = document.getElementById('gainVal');
-const outputSlider = document.getElementById('outputVol');
-const volVal = document.getElementById('volVal');
-const bassSlider = document.getElementById('bass');
-const bassVal = document.getElementById('bassVal');
-const trebleSlider = document.getElementById('treble');
-const trebVal = document.getElementById('trebVal');
-const meterFill = document.getElementById('meterFill');
+const startBtn = document.getElementById("startBtn");
+const stopBtn = document.getElementById("stopBtn");
+const recBtn = document.getElementById("recBtn");
+const downloadBtn = document.getElementById("downloadBtn");
 
-function createAudioGraph(stream){
+async function startAudio() {
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  micStream = stream;
-  sourceNode = audioCtx.createMediaStreamSource(stream);
+  micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  sourceNode = audioCtx.createMediaStreamSource(micStream);
 
-  // Filters
+  // filters
   lowShelf = audioCtx.createBiquadFilter();
-  lowShelf.type = 'lowshelf';
-  lowShelf.frequency.value = 150; // boost/cut low around 150Hz
+  lowShelf.type = "lowshelf";
+  lowShelf.frequency.value = 150;
 
   highShelf = audioCtx.createBiquadFilter();
-  highShelf.type = 'highshelf';
-  highShelf.frequency.value = 3000; // boost/cut high around 3kHz
+  highShelf.type = "highshelf";
+  highShelf.frequency.value = 3000;
 
-  // Gain nodes
-  gainNode = audioCtx.createGain(); // master gain (voice booster)
-  outputGain = audioCtx.createGain(); // final output volume
+  gainNode = audioCtx.createGain();
+  outputGain = audioCtx.createGain();
 
-  // analyser for meter
   analyser = audioCtx.createAnalyser();
-  analyser.fftSize = 2048;
+  analyser.fftSize = 512;
 
+  sourceNode.connect(lowShelf);
+  lowShelf.connect(highShelf);
+  highShelf.connect(gainNode);
+  gainNode.connect(outputGain);
+  outputGain.connect(analyser);
+  analyser.connect(audioCtx.destination);
+
+  updateValues();
+  updateMeter();
+
+  // recorder setup
+  const dest = audioCtx.createMediaStreamDestination();
+  outputGain.connect(dest);
+  recorder = new MediaRecorder(dest.stream);
+  recorder.ondataavailable = e => recordedChunks.push(e.data);
+  recorder.onstop = saveRecording;
+
+  startBtn.disabled = true;
+  stopBtn.disabled = false;
+  recBtn.disabled = false;
+}
+
+function stopAudio() {
+  if (rafId) cancelAnimationFrame(rafId);
+  if (micStream) micStream.getTracks().forEach(t => t.stop());
+  if (audioCtx) audioCtx.close();
+  startBtn.disabled = false;
+  stopBtn.disabled = true;
+  recBtn.disabled = true;
+}
+
+function updateValues() {
+  gainNode.gain.value = parseFloat(gainSlider.value);
+  outputGain.gain.value = parseFloat(volumeSlider.value);
+  lowShelf.gain.value = parseFloat(bassSlider.value);
+  highShelf.gain.value = parseFloat(trebleSlider.value);
+
+  gainVal.textContent = gainSlider.value;
+  bassVal.textContent = bassSlider.value;
+  trebleVal.textContent = trebleSlider.value;
+  volVal.textContent = volumeSlider.value;
+}
+
+function updateMeter() {
+  const buf = new Uint8Array(analyser.fftSize);
+  analyser.getByteTimeDomainData(buf);
+  let sum = 0;
+  for (let i = 0; i < buf.length; i++) {
+    let v = (buf[i] - 128) / 128;
+    sum += v * v;
+  }
+  let rms = Math.sqrt(sum / buf.length);
+  let pct = Math.min(1, rms * 3);
+  meterFill.style.width = (pct * 100) + "%";
+  rafId = requestAnimationFrame(updateMeter);
+}
+
+function toggleRecord() {
+  if (!isRecording) {
+    recordedChunks = [];
+    recorder.start();
+    recBtn.textContent = "Stop Recording";
+    isRecording = true;
+  } else {
+    recorder.stop();
+    recBtn.textContent = "Start Recording";
+    isRecording = false;
+  }
+}
+
+function saveRecording() {
+  const blob = new Blob(recordedChunks, { type: "audio/webm" });
+  const url = URL.createObjectURL(blob);
+  downloadBtn.href = url;
+  downloadBtn.download = "recorded-voice.webm";
+  downloadBtn.disabled = false;
+}
+
+gainSlider.oninput = updateValues;
+bassSlider.oninput = updateValues;
+trebleSlider.oninput = updateValues;
+volumeSlider.oninput = updateValues;
+
+startBtn.onclick = startAudio;
+stopBtn.onclick = stopAudio;
+recBtn.onclick = toggleRecord;
+</script>
+</body>
+</html>
   // Connect: source -> low -> high -> gain -> analyser -> output
   sourceNode.connect(lowShelf);
   lowShelf.connect(highShelf);
