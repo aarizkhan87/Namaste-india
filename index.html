@@ -574,4 +574,455 @@ recBtn.onclick = toggleRecord;
 </script>
 </body>
 </html>
+  <button onclick="document.getElementById('healthCheck').style.display='block'; runTests();" 
+        style="padding:15px 25px;background:#ff4081;color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer;">
+  🔍 Run Device Health Test
+  </button>
+  <!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Device Health Checkup</title>
+<style>
+  :root{
+    --accent:#ff4081;
+    --bg:#0f1724;
+    --card:#0b1220;
+    --text:#e6eef8;
+    --ok:#28c76f;
+    --warn:#ffb020;
+    --bad:#ff5c7c;
+    --muted:#9fb7d6;
+  }
+  body{margin:0; font-family:Inter, system-ui, Arial; background:linear-gradient(180deg,#071026,#0b1220); color:var(--text); padding:18px;}
+  .wrap{max-width:980px;margin:0 auto;}
+  header{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+  header h1{font-size:20px;margin:0}
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:18px;border-radius:12px; box-shadow:0 8px 30px rgba(2,6,23,0.6); margin-bottom:14px}
+  .grid{display:grid;grid-template-columns:1fr 320px;gap:14px}
+  @media(max-width:880px){ .grid{grid-template-columns:1fr} }
+  .tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  button{background:var(--accent);color:white;border:none;padding:10px 12px;border-radius:8px;cursor:pointer;font-weight:600}
+  button.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06)}
+  ul.checks{list-style:none;padding:0;margin:0}
+  li.check{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:8px;margin-bottom:8px;background:rgba(255,255,255,0.02)}
+  .status{font-weight:700;padding:6px 10px;border-radius:999px}
+  .status.ok{background:rgba(40,199,111,0.12);color:var(--ok)}
+  .status.warn{background:rgba(255,176,32,0.08);color:var(--warn)}
+  .status.bad{background:rgba(255,92,124,0.08);color:var(--bad)}
+  .small{font-size:13px;color:var(--muted);margin-top:8px}
+  .block{margin-bottom:12px}
+  video{width:100%;border-radius:8px;background:#000}
+  .meter{height:10px;background:#111;border-radius:8px;overflow:hidden;margin-top:8px}
+  .meter > i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#00f,#0ff)}
+  .report{white-space:pre-wrap;background:rgba(0,0,0,0.25);padding:12px;border-radius:8px;color:#cfe9ff; max-height:300px; overflow:auto; font-family: monospace; font-size:13px}
+  footer{color:var(--muted); font-size:13px; text-align:center;margin-top:8px}
+  a.link{color:var(--accent); text-decoration:none}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Device Health Checkup</h1>
+      <div class="small">Quick checks for browser & device readiness (for study tools, voice practice, camera use).</div>
+    </header>
+
+    <div class="grid">
+      <div>
+        <div class="card">
+          <h2 style="margin:0 0 8px 0">Run Checks</h2>
+          <div class="tools">
+            <button id="runBtn">Run Full Check</button>
+            <button class="secondary" id="quickBtn">Quick Check</button>
+            <button class="secondary" id="clearReport">Clear Report</button>
+            <button id="downloadReport">Download Report</button>
+          </div>
+
+          <div class="block" style="margin-top:12px">
+            <ul class="checks" id="checksList">
+              <!-- checks inserted here -->
+            </ul>
+          </div>
+
+          <div class="small">Tip: after any "warn" result, tap the advice to see quick fixes.</div>
+        </div>
+
+        <div class="card">
+          <h2 style="margin:0 0 8px 0">Camera & Microphone Tests</h2>
+
+          <div class="block">
+            <label style="font-size:13px; color:var(--muted)">Camera Preview</label>
+            <video id="video" autoplay playsinline muted></video>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button id="startCam">Start Camera</button>
+              <button class="secondary" id="stopCam" disabled>Stop Camera</button>
+              <select id="cameraSelect" style="flex:1;border-radius:8px;padding:8px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--text)"></select>
+            </div>
+            <div class="small">If camera prompt doesn't appear: check browser permissions.</div>
+          </div>
+
+          <div class="block">
+            <label style="font-size:13px; color:var(--muted)">Microphone Level (live)</label>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button id="startMic">Start Mic Test</button>
+              <button class="secondary" id="stopMic" disabled>Stop Mic</button>
+            </div>
+            <div class="meter"><i id="micMeter"></i></div>
+            <div class="small">Speak for a second — meter shows relative input level.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 style="margin:0 0 8px 0">Quick Fix Tips</h2>
+          <ul style="margin:0;padding-left:18px;color:var(--muted)">
+            <li>Restart your browser / close unused tabs to reduce lag.</li>
+            <li>Use headphones during mic/camera tests to avoid feedback.</li>
+            <li>Free up device storage if low — delete large unused files/apps.</li>
+            <li>Ensure browser permissions allowed for camera & mic.</li>
+            <li>Turn on Wi-Fi or use a faster network for online tools.</li>
+          </ul>
+        </div>
+      </div>
+
+      <aside>
+        <div class="card">
+          <h3 style="margin:0 0 8px 0">Summary</h3>
+          <div id="summaryBox" class="block small">Run the full check to see a summary here.</div>
+          <h3 style="margin:12px 0 8px 0">Report</h3>
+          <div id="report" class="report">No report yet. Run checks to generate a report.</div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin:0 0 8px 0">Device Info</h3>
+          <div id="deviceInfo" class="small">Run checks to gather device info.</div>
+        </div>
+      </aside>
+    </div>
+
+    <footer>
+      Tool made for your study site. Works best on modern Chrome/Edge on Android. Some features require user permission.
+    </footer>
+  </div>
+
+<script>
+/*
+ Device Health Checkup
+ - Runs a set of checks and prints results.
+ - Handles missing APIs gracefully.
+ - Camera preview and microphone live level meter included.
+*/
+
+const runBtn = document.getElementById('runBtn');
+const quickBtn = document.getElementById('quickBtn');
+const checksList = document.getElementById('checksList');
+const reportBox = document.getElementById('report');
+const summaryBox = document.getElementById('summaryBox');
+const deviceInfoBox = document.getElementById('deviceInfo');
+const clearReportBtn = document.getElementById('clearReport');
+const downloadBtn = document.getElementById('downloadReport');
+
+const startCamBtn = document.getElementById('startCam');
+const stopCamBtn = document.getElementById('stopCam');
+const videoEl = document.getElementById('video');
+const cameraSelect = document.getElementById('cameraSelect');
+
+const startMicBtn = document.getElementById('startMic');
+const stopMicBtn = document.getElementById('stopMic');
+const micMeter = document.getElementById('micMeter');
+
+let camStream = null;
+let micStream = null;
+let micAudioCtx = null;
+let micAnalyser = null;
+let micRaf = null;
+
+function makeCheck(name, result, advice=''){
+  const li = document.createElement('li');
+  li.className = 'check';
+  const left = document.createElement('div');
+  left.style.display = 'flex';
+  left.style.flexDirection = 'column';
+  left.innerHTML = `<strong>${name}</strong><span style="font-size:12px;color:var(--muted)">${advice ? advice : ''}</span>`;
+  const right = document.createElement('div');
+
+  const span = document.createElement('span');
+  span.className = 'status';
+  if(result === 'ok'){ span.classList.add('ok'); span.textContent = 'OK' }
+  else if(result === 'warn'){ span.classList.add('warn'); span.textContent = 'WARN' }
+  else { span.classList.add('bad'); span.textContent = 'FAIL' }
+
+  right.appendChild(span);
+  li.appendChild(left);
+  li.appendChild(right);
+  checksList.appendChild(li);
+  return li;
+}
+
+function appendReportLine(line){
+  reportBox.textContent += line + '\n';
+}
+
+async function runFullCheck(){
+  checksList.innerHTML = '';
+  reportBox.textContent = '';
+  summaryBox.textContent = 'Running checks…';
+  deviceInfoBox.textContent = '';
+
+  const results = [];
+  // 1) Browser & UA
+  const ua = navigator.userAgent || 'unknown';
+  appendReportLine('User Agent: ' + ua);
+  makeCheck('Browser available', 'ok', ua);
+
+  // 2) Battery
+  try{
+    if(navigator.getBattery){
+      const batt = await navigator.getBattery();
+      const level = Math.round(batt.level * 100);
+      appendReportLine('Battery level: ' + level + '% (charging: ' + batt.charging + ')');
+      const battState = level >= 30 ? 'ok' : 'warn';
+      makeCheck('Battery level', battState, `Level ${level}%`);
+    } else {
+      makeCheck('Battery API', 'warn', 'API not supported');
+      appendReportLine('Battery API: not supported');
+    }
+  }catch(e){ makeCheck('Battery check', 'warn', e.message); appendReportLine('Battery error: '+e.message) }
+
+  // 3) Network info
+  try{
+    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if(conn){
+      const rtt = conn.rtt || 'n/a';
+      const down = conn.downlink || 'n/a';
+      appendReportLine('Network: downlink=' + down + 'Mbps, rtt=' + rtt + 'ms, type=' + (conn.effectiveType || conn.type));
+      const netStatus = (conn.downlink && conn.downlink >= 1) ? 'ok' : 'warn';
+      makeCheck('Network quality', netStatus, `type: ${conn.effectiveType || conn.type || 'unknown'}`);
+    } else {
+      makeCheck('Network Info API', 'warn', 'API not supported');
+      appendReportLine('Network Info API not supported');
+    }
+  }catch(e){ makeCheck('Network check','warn',e.message); appendReportLine('Network error: '+e.message) }
+
+  // 4) Storage estimate
+  try{
+    if(navigator.storage && navigator.storage.estimate){
+      const est = await navigator.storage.estimate();
+      const used = est.usage || 0;
+      const quota = est.quota || 0;
+      const percent = quota? Math.round(used/quota * 100): 0;
+      appendReportLine(`Storage usage: ${Math.round(used/1024/1024)}MB / ${Math.round(quota/1024/1024)}MB (${percent}%)`);
+      const sstatus = (quota && percent > 90) ? 'warn' : 'ok';
+      makeCheck('Storage available', sstatus, `${percent}% used`);
+    } else {
+      makeCheck('Storage API', 'warn', 'API not supported');
+      appendReportLine('Storage API not supported');
+    }
+  }catch(e){ makeCheck('Storage check','warn',e.message); appendReportLine('Storage error: '+e.message) }
+
+  // 5) Device memory & cores
+  try{
+    const mem = navigator.deviceMemory || 'unknown';
+    const cores = navigator.hardwareConcurrency || 'unknown';
+    appendReportLine('Device memory (GB): ' + mem + ', CPU cores: ' + cores);
+    const mstatus = (mem !== 'unknown' && mem >= 2) ? 'ok' : 'warn';
+    makeCheck('Device RAM', mstatus, `Memory: ${mem} GB`);
+    makeCheck('CPU cores', (cores !== 'unknown' && cores >= 2) ? 'ok' : 'warn', `Cores: ${cores}`);
+  }catch(e){ makeCheck('Hardware info','warn',e.message); appendReportLine('Hardware error: '+e.message) }
+
+  // 6) Local storage & cookies
+  try{
+    const lsOk = (function(){ try{ localStorage.setItem('__ok','1'); localStorage.removeItem('__ok'); return true }catch(e){ return false } })();
+    makeCheck('localStorage', lsOk ? 'ok':'warn', lsOk ? 'available':'blocked');
+    appendReportLine('localStorage: ' + (lsOk ? 'available' : 'blocked'));
+    const cookiesOk = navigator.cookieEnabled;
+    makeCheck('Cookies', cookiesOk ? 'ok':'warn', cookiesOk ? 'enabled':'disabled');
+    appendReportLine('cookiesEnabled: ' + cookiesOk);
+  }catch(e){ makeCheck('Storage/cookies','warn',e.message); appendReportLine('Storage/cookies error: '+e.message) }
+
+  // 7) Service Worker
+  try{
+    const sw = 'serviceWorker' in navigator;
+    makeCheck('Service Worker support', sw ? 'ok':'warn', sw ? 'available':'not available');
+    appendReportLine('serviceWorker supported: ' + sw);
+  }catch(e){ makeCheck('Service Worker','warn',e.message); appendReportLine('SW error: '+e.message) }
+
+  // 8) Geolocation
+  try{
+    if('geolocation' in navigator){
+      makeCheck('Geolocation', 'ok', 'available (permission required)');
+      appendReportLine('Geolocation API available');
+    } else {
+      makeCheck('Geolocation', 'warn', 'not supported');
+      appendReportLine('Geolocation API not supported');
+    }
+  }catch(e){ makeCheck('Geolocation','warn',e.message); appendReportLine('Geolocation error: '+e.message) }
+
+  // 9) Camera & mic enumerations
+  try{
+    if(navigator.mediaDevices && navigator.mediaDevices.enumerateDevices){
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const cams = devices.filter(d => d.kind === 'videoinput');
+      const mics = devices.filter(d => d.kind === 'audioinput');
+      appendReportLine('Cameras found: ' + cams.length + ', Microphones found: ' + mics.length);
+      makeCheck('Camera detected', cams.length>0 ? 'ok' : 'warn', cams.length + ' camera(s)');
+      makeCheck('Microphone detected', mics.length>0 ? 'ok' : 'warn', mics.length + ' mic(s)');
+      // populate camera select
+      cameraSelect.innerHTML = '';
+      cams.forEach(c=>{
+        const opt = document.createElement('option');
+        opt.value = c.deviceId;
+        opt.textContent = c.label || 'Camera ' + (cameraSelect.length+1);
+        cameraSelect.appendChild(opt);
+      });
+      if(cams.length === 0){
+        cameraSelect.innerHTML = '<option value="">No camera</option>';
+      }
+    } else {
+      makeCheck('Media Devices API', 'warn', 'not supported');
+      appendReportLine('Media Devices API not supported');
+    }
+  }catch(e){ makeCheck('Device enumerate','warn',e.message); appendReportLine('Enumerate error: '+e.message) }
+
+  // 10) Permissions check (camera/mic)
+  try{
+    if(navigator.permissions){
+      const camPerm = await navigator.permissions.query({name:'camera'}).catch(()=>null);
+      const micPerm = await navigator.permissions.query({name:'microphone'}).catch(()=>null);
+      appendReportLine('Permission camera: ' + (camPerm?camPerm.state:'unknown') + ', mic: ' + (micPerm?micPerm.state:'unknown'));
+      makeCheck('Camera permission', (camPerm && camPerm.state === 'granted') ? 'ok' : 'warn', camPerm?camPerm.state:'unknown');
+      makeCheck('Microphone permission', (micPerm && micPerm.state === 'granted') ? 'ok' : 'warn', micPerm?micPerm.state:'unknown');
+    } else {
+      makeCheck('Permissions API', 'warn', 'not supported');
+      appendReportLine('Permissions API not supported');
+    }
+  }catch(e){ makeCheck('Permissions','warn',e.message); appendReportLine('Permissions error: '+e.message) }
+
+  // Compose summary
+  summaryBox.textContent = 'Check complete. Scroll the list for details. ';
+
+  // Device Info summary
+  const infoLines = [];
+  infoLines.push('User agent: ' + (navigator.userAgent||'unknown'));
+  infoLines.push('Platform: ' + (navigator.platform||'unknown'));
+  infoLines.push('Screen: ' + screen.width + 'x' + screen.height);
+  infoLines.push('Device memory (GB): ' + (navigator.deviceMemory || 'n/a'));
+  infoLines.push('CPU cores: ' + (navigator.hardwareConcurrency || 'n/a'));
+  deviceInfoBox.textContent = infoLines.join('\n');
+
+  appendReportLine('\n=== END OF CHECK ===\n');
+}
+
+runBtn.addEventListener('click', runFullCheck);
+quickBtn.addEventListener('click', async ()=>{
+  checksList.innerHTML = '';
+  reportBox.textContent = '';
+  makeCheck('Browser available', 'ok');
+  makeCheck('localStorage', (function(){ try{ localStorage.setItem('__ok','1'); localStorage.removeItem('__ok'); return true }catch(e){ return false } })() ? 'ok':'warn');
+  makeCheck('Camera detected', 'warn', 'Run full check for device list');
+  makeCheck('Microphone detected', 'warn', 'Run full check for device list');
+  reportBox.textContent = 'Quick check ran. For deeper results, run full check.';
+  summaryBox.textContent = 'Quick check done.';
+});
+
+clearReportBtn.addEventListener('click', ()=>{ reportBox.textContent = 'No report yet. Run checks to generate a report.'; });
+
+downloadBtn.addEventListener('click', ()=>{
+  const text = 'Device Health Report\n\n' + reportBox.textContent;
+  const blob = new Blob([text], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'device-health-report.txt'; a.click();
+  URL.revokeObjectURL(url);
+});
+
+// CAMERA controls
+startCamBtn.addEventListener('click', async ()=>{
+  try{
+    const deviceId = cameraSelect.value || undefined;
+    const stream = await navigator.mediaDevices.getUserMedia({ video: deviceId ? { deviceId } : true, audio:false });
+    camStream = stream;
+    videoEl.srcObject = stream;
+    stopCamBtn.disabled = false;
+    startCamBtn.disabled = true;
+  }catch(e){
+    alert('Camera access error: ' + (e.message || e));
+  }
+});
+stopCamBtn.addEventListener('click', ()=>{
+  if(camStream){
+    camStream.getTracks().forEach(t=>t.stop());
+    camStream = null;
+    videoEl.srcObject = null;
+  }
+  stopCamBtn.disabled = true;
+  startCamBtn.disabled = false;
+});
+
+// MIC live meter
+startMicBtn.addEventListener('click', async ()=>{
+  try{
+    micStream = await navigator.mediaDevices.getUserMedia({ audio:true, video:false });
+    micAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const src = micAudioCtx.createMediaStreamSource(micStream);
+    micAnalyser = micAudioCtx.createAnalyser();
+    micAnalyser.fftSize = 512;
+    src.connect(micAnalyser);
+    stopMicBtn.disabled = false;
+    startMicBtn.disabled = true;
+    updateMicMeter();
+  }catch(e){
+    alert('Microphone access error: ' + (e.message || e));
+  }
+});
+
+stopMicBtn.addEventListener('click', ()=>{
+  if(micStream) micStream.getTracks().forEach(t=>t.stop());
+  if(micAudioCtx) { micAudioCtx.close().catch(()=>{}); micAudioCtx = null; }
+  if(micRaf) cancelAnimationFrame(micRaf);
+  micMeter.style.width = '0%';
+  stopMicBtn.disabled = true;
+  startMicBtn.disabled = false;
+});
+
+function updateMicMeter(){
+  if(!micAnalyser) return;
+  const buf = new Uint8Array(micAnalyser.fftSize);
+  micAnalyser.getByteTimeDomainData(buf);
+  let sum = 0;
+  for(let i=0;i<buf.length;i++){
+    const v = (buf[i]-128)/128;
+    sum += v*v;
+  }
+  const rms = Math.sqrt(sum / buf.length);
+  const pct = Math.min(1, rms * 4);
+  micMeter.style.width = (pct*100) + '%';
+  micRaf = requestAnimationFrame(updateMicMeter);
+}
+
+// populate device list on load (best-effort)
+(async function initDeviceList(){
+  try{
+    if(navigator.mediaDevices && navigator.mediaDevices.enumerateDevices){
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const cams = devices.filter(d => d.kind === 'videoinput');
+      cameraSelect.innerHTML = '';
+      cams.forEach(c=>{
+        const opt = document.createElement('option');
+        opt.value = c.deviceId;
+        opt.textContent = c.label || 'Camera ' + (cameraSelect.length+1);
+        cameraSelect.appendChild(opt);
+      });
+      if(cams.length === 0) cameraSelect.innerHTML = '<option value="">No camera found</option>';
+    } else {
+      cameraSelect.innerHTML = '<option value="">Media API not supported</option>';
+    }
+  }catch(e){
+    cameraSelect.innerHTML = '<option value="">Error listing cameras</option>';
+  }
+})();
+</script>
+</body>
+</html>
+  
     
