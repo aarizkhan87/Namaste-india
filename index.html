@@ -1056,7 +1056,7 @@ function stopWaterEject() {
 </head>
 
 
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1068,58 +1068,56 @@ function stopWaterEject() {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background: #1e1e2f;
-    color: white;
+    background: #222;
+    color: #fff;
     font-family: Arial, sans-serif;
   }
-  button {
+  #toggleBtn {
     padding: 20px 40px;
     font-size: 24px;
+    font-weight: bold;
     border: none;
     border-radius: 12px;
-    background: #ff4d6d;
-    color: white;
     cursor: pointer;
-    transition: 0.3s;
+    background: orange;
+    color: #000;
+    transition: transform 0.2s;
   }
-  button:hover {
-    background: #ff1a4d;
+  #toggleBtn:hover {
+    transform: scale(1.1);
   }
 </style>
 </head>
 <body>
-<button id="moodToggle">Mood Toggle</button>
+
+<button id="toggleBtn">Mood Toggle</button>
 
 <script>
-let audioCtx;
-let oscillator;
 let isBeeping = false;
+let audioCtx, oscillator;
 
-document.getElementById("moodToggle").addEventListener("click", () => {
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
+const btn = document.getElementById('toggleBtn');
 
-  if (!isBeeping) {
-    oscillator = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-    
-    oscillator.type = "square"; // high-pitched beep
-    oscillator.frequency.setValueAtTime(1000, audioCtx.currentTime); // 1000 Hz
-    gainNode.gain.setValueAtTime(1, audioCtx.currentTime); // volume
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-    
-    oscillator.start();
-    isBeeping = true;
-    document.getElementById("moodToggle").innerText = "Stop Beep";
-  } else {
-    oscillator.stop();
-    isBeeping = false;
-    document.getElementById("moodToggle").innerText = "Mood Toggle";
-  }
+btn.addEventListener('click', () => {
+    if (!isBeeping) {
+        // Start beep
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        oscillator = audioCtx.createOscillator();
+        oscillator.type = 'square'; // sharp beep
+        oscillator.frequency.setValueAtTime(1000, audioCtx.currentTime); // 1000 Hz
+        oscillator.connect(audioCtx.destination);
+        oscillator.start();
+        isBeeping = true;
+        btn.textContent = "Mood On";
+    } else {
+        // Stop beep
+        oscillator.stop();
+        audioCtx.close();
+        isBeeping = false;
+        btn.textContent = "Mood Toggle";
+    }
 });
 </script>
+
 </body>
 </html>
